@@ -172,12 +172,24 @@ body.has-timer main{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))
 .week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0 14px}
 .wday{border:0;background:var(--surface);border-radius:14px;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .wday span{font-size:12px;color:var(--muted)}.wday b{font:700 19px var(--num)}
-.wday i{font-style:normal;color:var(--accent);font-size:10px;line-height:10px;height:10px;letter-spacing:1px}
-.wday.now b{color:var(--accent)}.wday.sel{background:var(--accent);color:#fff}.wday.sel span,.wday.sel i,.wday.sel.now b{color:#fff}
+.wday b,.mday b{width:30px;height:30px;border-radius:15px;display:grid;place-items:center}
+.wday.now b,.mday.now b{color:var(--accent)}
+.wday.sel b,.mday.sel b,.wday.sel.now b,.mday.sel.now b{background:var(--accent);color:#fff}
+.calmode{margin:2px 0 10px}.calmode .chip{padding:9px 6px}
+.dots{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;min-height:7px;max-width:34px;margin-top:2px}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--dc);display:block}
+.dot.ring{background:transparent;box-shadow:inset 0 0 0 1.5px var(--dc)}
+.dots .more{font:700 9px/7px var(--num);font-style:normal;color:var(--muted)}
+.month{background:var(--surface);border-radius:18px;padding:8px 6px 10px;margin-bottom:14px}
+.mhead,.mgrid{display:grid;grid-template-columns:repeat(7,1fr)}
+.mhead span{text-align:center;font-size:12px;color:var(--muted);padding:2px 0 6px}
+.mgrid{gap:2px}
+.mday{border:0;background:none;border-radius:12px;min-height:56px;padding:3px 0 4px;display:flex;flex-direction:column;align-items:center;gap:1px}
+.mday b{font:600 16px var(--num)}.mday.out{opacity:.35}
 .dayhead{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}.dayhead h2{font:700 20px var(--num)}
 .sess{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:16px;margin-bottom:8px;padding-right:10px;position:relative;overflow:hidden}
-.sess::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
-.sess.done::before{background:var(--green)}.sess.noshow::before{background:var(--yellow)}.sess.cancel{opacity:.55}.sess.cancel::before{background:var(--muted)}
+.sess::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--cc)}
+.sess.cancel{opacity:.55}
 .sess-main{flex:1;display:flex;align-items:center;gap:12px;border:0;background:none;padding:12px 4px 12px 16px;text-align:left;min-width:0}
 .sess-time{display:flex;flex-direction:column;min-width:52px}.sess-time b{font:700 19px var(--num)}.sess-time small{color:var(--muted);font:500 13px var(--num)}
 .sess-info{flex:1;min-width:0;display:flex;flex-direction:column}.sess-info b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sess-info small{color:var(--muted);font-size:13px}
@@ -185,7 +197,7 @@ body.has-timer main{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))
 .badge.ok{color:var(--green)}.badge.warn{color:var(--yellow)}.badge.live{background:var(--red);color:#fff}
 .chip.go{background:var(--accent);color:#fff}
 .ccard{display:flex;gap:12px;align-items:flex-start;width:100%;border:0;background:var(--surface);border-radius:16px;padding:12px 14px;margin-bottom:8px;text-align:left}
-.ava{flex:0 0 44px;height:44px;border-radius:22px;background:var(--surface2);display:grid;place-items:center;font:700 16px var(--num);color:var(--accent)}
+.ava{flex:0 0 44px;height:44px;border-radius:22px;background:var(--surface2);display:grid;place-items:center;font:700 16px var(--num);color:#fff}
 .ava.big{flex-basis:56px;height:56px;border-radius:28px;font-size:20px}
 .cinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.cinfo b{font-weight:600}.cinfo small{color:var(--muted);font-size:13px}
 .tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
@@ -212,6 +224,7 @@ details.more{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
 details.more summary{color:var(--muted);font-weight:600;padding:6px 0;list-style:none}details.more summary::-webkit-details-marker{display:none}details.more summary::after{content:" ›"}
 .seg.st .chip{flex:1 1 40%}.seg.wds .chip{flex:1;padding:10px 0;min-width:0}
 .card > .btn{margin-top:8px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}.sw{width:34px;height:34px;border-radius:50%;border:0}.sw[aria-pressed=true]{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--ink)}
 </style>
 </head>
 <body data-screen="schedule">
@@ -219,7 +232,7 @@ details.more summary{color:var(--muted);font-weight:600;padding:6px 0;list-style
 <main id="main"></main>
 <nav id="nav" aria-label="Разделы">
   <button data-tab="schedule"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Расписание</button>
-  <button data-tab="clients"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.6-5.5 6.5-5.5s5.5 1.9 6.5 5.5M16 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c1.8.7 3 2.4 3.6 5.2"/></svg>Клиенты</button>
+  <button data-tab="clients"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.6-5.5 6.5-5.5s5.5 1.9 6.5 5.5M16 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c1.8.7 3 2.4 3.6 5.2"/></svg>Подопечные</button>
   <button data-tab="programs"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V2.8h6V4M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>Программы</button>
   <button data-tab="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>Ещё</button>
 </nav>
@@ -283,12 +296,13 @@ function addLibrary(list){ const have = new Set(list.map(x => x.name.toLowerCase
   for (const n of CALI_EX) if (!have.has(n.toLowerCase())) list.push({ id: uid(), name: n, group: 'Калистеника', bw: true });
   for (const x of list) if (BW_NAMES.includes(x.name)) x.bw = true; }
 /* ---------- состояние ---------- */
-const APP_VERSION = '0.1';
+const APP_VERSION = '0.2';
 function freshState(){ return { v: 1, lib: 2,
   settings: { trainer: '', price: '', cur: '₽', dur: '60', rest: '90', noshow: '1' },
   exercises: (() => { const l = DEFAULT_EX.map(([name, group]) => ({ id: uid(), name, group })); addLibrary(l); return l; })(),
   clients: [], sessions: [], workouts: [], programs: [], passes: [], payments: [], timer: null, lastExport: '' }; }
-function migrate(s){ const f = freshState(); for (const k of Object.keys(f)) if (s[k] == null) s[k] = f[k]; s.settings = { ...f.settings, ...s.settings }; }
+function migrate(s){ const f = freshState(); for (const k of Object.keys(f)) if (s[k] == null) s[k] = f[k]; s.settings = { ...f.settings, ...s.settings };
+  const prev = S; S = s; for (const c of s.clients) if (!c.color) c.color = pickColor(); S = prev; }
 let S, TAB = 'schedule', VIEW = [], SD = today(), CTAB = 'program', FM = 0, PEX = null, CQ = '', CARCH = false, saveT;
 function save(){ clearTimeout(saveT); saveT = setTimeout(persist, 250); }
 async function persist(){ clearTimeout(saveT);
@@ -301,6 +315,11 @@ const touch = o => { o.upd = Date.now(); return o; };
 const exById = id => S.exercises.find(x => x.id === id);
 const e1rm = (w, r) => r <= 1 ? w : w * (1 + r / 30);
 const clientById = id => S.clients.find(c => c.id === id);
+const COLORS = ['#E5484D', '#0090FF', '#46A758', '#F76B15', '#8E4EC6', '#12A594', '#D6409F', '#E2A400', '#3E63DD', '#AD7F58', '#29A383', '#5B6B7C'];
+function pickColor(){ const used = {}; for (const c of S.clients) if (!c.archived && c.color) used[c.color] = (used[c.color] || 0) + 1;
+  return COLORS.slice().sort((a, b) => (used[a] || 0) - (used[b] || 0) || COLORS.indexOf(a) - COLORS.indexOf(b))[0]; }
+const colorOf = cid => (clientById(cid) || {}).color || '#8D96A3';
+const ava = (c, big) => `<span class="ava${big ? ' big' : ''}" style="background:${c.color || 'var(--surface2)'}">${esc(initials(c.name))}</span>`;
 const initials = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
 const money = n => `${fmtNum(n)} ${S.settings.cur || '₽'}`;
 const addMin = (t, m) => { const [h, mm] = t.split(':').map(Number), x = h * 60 + mm + Number(m || 0); return `${pad(Math.floor(x / 60) % 24)}:${pad(x % 60)}`; };
@@ -346,7 +365,7 @@ function render(){
     $('#top').innerHTML = `<button class="iconbtn" data-act="back" aria-label="Назад">‹</button><h1 class="vtitle">${esc(title)}</h1><span style="width:40px"></span>`;
     main = v.t === 'client' ? viewClient(v.id) : v.t === 'workout' ? viewWorkout(v.id) : viewProgram(v.id);
   } else {
-    $('#top').innerHTML = TAB === 'schedule' ? scheduleHeader() : `<h1 class="title">${({ clients: 'Клиенты', programs: 'Программы', more: 'Ещё' })[TAB]}</h1>`;
+    $('#top').innerHTML = TAB === 'schedule' ? scheduleHeader() : `<h1 class="title">${({ clients: 'Подопечные', programs: 'Программы', more: 'Ещё' })[TAB]}</h1>`;
     main = ({ schedule: viewSchedule, clients: viewClients, programs: viewPrograms, more: viewMore })[TAB]();
   }
   $('#main').innerHTML = main;
@@ -489,7 +508,7 @@ function viewWorkout(id){
   }
   h += `<button class="btn ghost" data-act="pickex">Добавить упражнение</button>
     <div class="card" style="margin-top:12px"><h2>Заметка к тренировке</h2><textarea id="wnote" rows="3" placeholder="Самочувствие, что получилось, что поменять в следующий раз">${esc(w.note || '')}</textarea></div>`;
-  h += live ? `<button class="btn accent" data-act="finish">Завершить тренировку</button>` : `<button class="btn accent" data-act="report" data-id="${w.id}">Отчёт клиенту</button><button class="btn ghost danger" data-act="delwk" data-id="${w.id}">Удалить тренировку</button>`;
+  h += live ? `<button class="btn accent" data-act="finish">Завершить тренировку</button>` : `<button class="btn accent" data-act="report" data-id="${w.id}">Отчёт подопечному</button><button class="btn ghost danger" data-act="delwk" data-id="${w.id}">Удалить тренировку</button>`;
   return h;
 }
 const curWorkout = () => { const v = VIEW.at(-1); return v && v.t === 'workout' ? S.workouts.find(x => x.id === v.id) : null; };
@@ -564,7 +583,7 @@ function buildReport(w){
 }
 function openReport(wid, justFinished){
   const w = S.workouts.find(x => x.id === wid); if (!w) return; const text = buildReport(w);
-  const sh = sheet(`<h2>${justFinished ? 'Тренировка завершена' : 'Отчёт клиенту'}</h2><p class="prev">Текст можно поправить перед отправкой</p>
+  const sh = sheet(`<h2>${justFinished ? 'Тренировка завершена' : 'Отчёт подопечному'}</h2><p class="prev">Текст можно поправить перед отправкой</p>
     <textarea id="rep" rows="12">${esc(text)}</textarea>
     <button class="btn accent" data-s="share" style="margin-top:12px">Отправить</button><button class="btn ghost" data-s="copy">Скопировать</button><button class="btn ghost" data-s="done">Готово</button>`);
   sh.onclick = async e => { const b = e.target.closest('[data-s]'); if (!b) return; const v = sh.querySelector('#rep').value;
@@ -702,7 +721,7 @@ function daysHtml(prog, ctx){
     ${ctx === 'client' ? `<button class="chip go" data-act="startday" data-day="${d.id}">Начать</button>` : ''}</div>`).join('')
     || '<p class="small" style="padding:4px 0 10px">Дней пока нет. Обычно это 2–4 дня, которые идут по кругу: A, B, C.</p>'; }
 function viewPrograms(){
-  let h = S.programs.length ? '' : '<p class="empty">Здесь твоя библиотека программ. Собери программу один раз и назначай её разным клиентам, подгоняя под каждого.</p>';
+  let h = S.programs.length ? '' : '<p class="empty">Здесь твоя библиотека программ. Собери программу один раз и назначай её разным подопечным, подгоняя под каждого.</p>';
   h += S.programs.slice().sort((a, b) => a.name.localeCompare(b.name, 'ru')).map(p => `<button class="pcard" data-act="openprog" data-id="${p.id}"><b>${esc(p.name)}</b><small>${p.days.length} ${plural(p.days.length, 'день', 'дня', 'дней')}${p.days.length ? ': ' + esc(p.days.map(d => d.name).join(', ')) : ''}</small></button>`).join('');
   return h + '<button class="btn accent" data-act="newprog" style="margin-top:8px">Новая программа</button>';
 }
@@ -710,11 +729,11 @@ function viewProgram(id){
   const p = S.programs.find(x => x.id === id); if (!p) return '<p class="empty">Программа не найдена</p>';
   return `<div class="card"><div class="field" style="margin:0"><label for="pname">Название</label><input id="pname" data-prog="${p.id}" value="${esc(p.name)}"></div></div>
     <div class="card"><h2>Дни</h2>${daysHtml(p, 'prog')}<button class="btn ghost" data-act="addday" data-ctx="prog">+ День</button></div>
-    <button class="btn accent" data-act="assignprog" data-id="${p.id}">Назначить клиенту</button><button class="btn ghost danger" data-act="delprog" data-id="${p.id}">Удалить программу</button>`;
+    <button class="btn accent" data-act="assignprog" data-id="${p.id}">Назначить подопечному</button><button class="btn ghost danger" data-act="delprog" data-id="${p.id}">Удалить программу</button>`;
 }
 function pickClient(title, cb){
   const cl = S.clients.filter(c => !c.archived).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
-  const sh = sheet(`<h2>${esc(title)}</h2>${cl.map(c => `<button class="row" data-id="${c.id}"><span class="nm">${esc(c.name)}<small>${c.program && c.program.days.length ? `сейчас ${c.program.days.length} ${plural(c.program.days.length, 'день', 'дня', 'дней')} в программе` : 'программы нет'}</small></span></button>`).join('') || '<p class="empty">Клиентов пока нет</p>'}`);
+  const sh = sheet(`<h2>${esc(title)}</h2>${cl.map(c => `<button class="row" data-id="${c.id}"><span class="nm">${esc(c.name)}<small>${c.program && c.program.days.length ? `сейчас ${c.program.days.length} ${plural(c.program.days.length, 'день', 'дня', 'дней')} в программе` : 'программы нет'}</small></span></button>`).join('') || '<p class="empty">Подопечных пока нет</p>'}`);
   sh.onclick = e => { const b = e.target.closest('[data-id]'); if (b) cb(b.dataset.id); };
 }
 function assignProgram(pid, cid){
@@ -728,20 +747,37 @@ function assignProgram(pid, cid){
 const STATUS = { planned: ['Запланирована', ''], done: ['Проведена', 'ok'], noshow: ['Неявка', 'warn'], cancel: ['Отменена', 'off'] };
 const mondayOf = d => { const [y, m, dd] = d.split('-').map(Number), x = new Date(y, m - 1, dd); x.setDate(dd - (x.getDay() + 6) % 7); return dstr(x); };
 const sessionsOn = d => S.sessions.filter(s => s.date === d).sort((a, b) => a.time.localeCompare(b.time));
+const MONTH_NAMES = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const calMode = () => S.settings.cal === 'month' ? 'month' : 'week';
+function shiftMonth(d, n){ const [y, m, dd] = d.split('-').map(Number), x = new Date(y, m - 1 + n, 1), last = new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate();
+  x.setDate(Math.min(dd, last)); return dstr(x); }
+// точки дня: по одной на запись, в порядке времени, цветом подопечного
+function dayDots(d, max){ const ss = sessionsOn(d).filter(s => s.status !== 'cancel'), shown = ss.length > max ? ss.slice(0, max - 1) : ss;
+  return shown.map(s => `<i class="dot${s.status === 'done' ? '' : s.status === 'noshow' ? ' ring' : ' plan'}" style="--dc:${colorOf(s.clientId)}"></i>`).join('')
+    + (ss.length > max ? `<i class="more">+${ss.length - shown.length}</i>` : ''); }
 function scheduleHeader(){
-  const mon = mondayOf(SD), [y, m] = SD.split('-').map(Number);
-  return `<div class="datebar"><button class="iconbtn" data-act="week" data-d="-7" aria-label="Предыдущая неделя">‹</button><h1>${['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m - 1]}</h1><button class="iconbtn" data-act="week" data-d="7" aria-label="Следующая неделя">›</button></div>${mondayOf(today()) !== mon || SD !== today() ? '<button class="chip" data-act="today">Сегодня</button>' : ''}`;
+  const [, m] = SD.split('-').map(Number), mode = calMode(), step = mode === 'month' ? 'month' : 'week';
+  const offToday = mode === 'month' ? SD.slice(0, 7) !== today().slice(0, 7) || SD !== today() : mondayOf(today()) !== mondayOf(SD) || SD !== today();
+  return `<div class="datebar"><button class="iconbtn" data-act="${step}" data-d="-1" aria-label="Назад">‹</button><h1>${MONTH_NAMES[m - 1]}</h1><button class="iconbtn" data-act="${step}" data-d="1" aria-label="Вперёд">›</button></div>${offToday ? '<button class="chip" data-act="today">Сегодня</button>' : ''}`;
 }
 function viewSchedule(){
-  const mon = mondayOf(SD), t = today();
-  let h = `<div class="week">${[...Array(7)].map((_, i) => { const d = addDays(mon, i), n = sessionsOn(d).filter(s => s.status !== 'cancel').length, [, , dd] = d.split('-').map(Number);
-    return `<button class="wday${d === SD ? ' sel' : ''}${d === t ? ' now' : ''}" data-act="sday" data-d="${d}"><span>${['пн','вт','ср','чт','пт','сб','вс'][i]}</span><b>${dd}</b><i>${n ? '•'.repeat(Math.min(n, 4)) : ''}</i></button>`; }).join('')}</div>`;
+  const t = today(), mode = calMode(), WDN = ['пн','вт','ср','чт','пт','сб','вс'];
+  let h = `<div class="seg calmode"><button class="chip" data-act="calmode" data-v="week" aria-pressed="${mode === 'week'}">Неделя</button><button class="chip" data-act="calmode" data-v="month" aria-pressed="${mode === 'month'}">Месяц</button></div>`;
+  if (mode === 'week') { const mon = mondayOf(SD);
+    h += `<div class="week">${[...Array(7)].map((_, i) => { const d = addDays(mon, i), dd = +d.slice(8);
+      return `<button class="wday${d === SD ? ' sel' : ''}${d === t ? ' now' : ''}" data-act="sday" data-d="${d}"><span>${WDN[i]}</span><b>${dd}</b><span class="dots">${dayDots(d, 5)}</span></button>`; }).join('')}</div>`; }
+  else { const first = SD.slice(0, 8) + '01', start = mondayOf(first), ym = SD.slice(0, 7);
+    const [y, m] = SD.split('-').map(Number), last = new Date(y, m, 0).getDate(), weeks = Math.ceil(((new Date(y, m - 1, 1).getDay() + 6) % 7 + last) / 7);
+    h += `<div class="month"><div class="mhead">${WDN.map(n => `<span>${n}</span>`).join('')}</div><div class="mgrid">${[...Array(weeks * 7)].map((_, i) => { const d = addDays(start, i), out = d.slice(0, 7) !== ym;
+      return `<button class="mday${out ? ' out' : ''}${d === SD ? ' sel' : ''}${d === t ? ' now' : ''}" data-act="sday" data-d="${d}"><b>${+d.slice(8)}</b><span class="dots">${dayDots(d, 6)}</span></button>`; }).join('')}</div></div>`;
+    const cnt = S.sessions.filter(x => x.date.startsWith(ym) && x.status !== 'cancel').length;
+    if (cnt) h += `<p class="small" style="margin:-4px 2px 12px">За месяц: ${cnt} ${plural(cnt, 'тренировка', 'тренировки', 'тренировок')}. Каждая точка — тренировка подопечного его цветом, по порядку времени. Кольцо — неявка.</p>`; }
   const list = sessionsOn(SD), act = list.filter(s => s.status !== 'cancel');
   h += `<div class="dayhead"><h2>${fmtDay(SD)}</h2><span class="small">${act.length ? `${act.length} ${plural(act.length, 'тренировка', 'тренировки', 'тренировок')}` : ''}</span></div>`;
-  if (!list.length) h += `<p class="empty">${S.clients.length ? 'Свободный день' : 'Добавь первого клиента и запиши его на тренировку. Или загрузи пример, чтобы посмотреть, как всё работает.'}</p>${S.clients.length ? '' : '<button class="btn ghost" data-act="demo" style="margin-bottom:8px">Заполнить примером</button>'}`;
-  for (const s of list) { const c = clientById(s.clientId) || { name: 'Удалённый клиент' }, [stTxt, stCls] = STATUS[s.status], w = s.workoutId && S.workouts.find(x => x.id === s.workoutId);
+  if (!list.length) h += `<p class="empty">${S.clients.length ? 'Свободный день' : 'Добавь первого подопечного и запиши его на тренировку. Или загрузи пример, чтобы посмотреть, как всё работает.'}</p>${S.clients.length ? '' : '<button class="btn ghost" data-act="demo" style="margin-bottom:8px">Заполнить примером</button>'}`;
+  for (const s of list) { const c = clientById(s.clientId) || { name: 'Удалённый подопечный' }, [stTxt, stCls] = STATUS[s.status], w = s.workoutId && S.workouts.find(x => x.id === s.workoutId);
     const live = w && !w.finishedAt, pl = s.status === 'planned' ? passLine(s.clientId) : s.single ? `разовое, ${money(s.price)}` : s.passId ? 'по абонементу' : '';
-    h += `<div class="sess ${s.status}"><button class="sess-main" data-act="sess" data-id="${s.id}"><span class="sess-time"><b>${s.time}</b><small>${addMin(s.time, s.dur)}</small></span>
+    h += `<div class="sess ${s.status}" style="--cc:${c.color || 'var(--muted)'}"><button class="sess-main" data-act="sess" data-id="${s.id}"><span class="sess-time"><b>${s.time}</b><small>${addMin(s.time, s.dur)}</small></span>
       <span class="sess-info"><b>${esc(c.name)}</b><small>${[w && w.dayName ? esc(w.dayName) : '', pl].filter(Boolean).join(', ') || '&nbsp;'}</small></span>
       ${s.status !== 'planned' || live ? `<span class="badge ${live ? 'live' : stCls}">${live ? 'Идёт' : stTxt}</span>` : ''}</button>
       ${s.status === 'planned' && s.date <= t ? `<button class="chip go" data-act="startsess" data-id="${s.id}">${live ? 'Открыть' : 'Начать'}</button>` : ''}</div>`; }
@@ -753,7 +789,7 @@ function openSessionEditor(pre = {}){
   const d = { clientId: pre.clientId || '', date: pre.date || SD, time: pre.time || '10:00', dur: String(pre.dur || S.settings.dur || 60), repeat: false, wds: [], weeks: '12' };
   const cl = S.clients.filter(c => !c.archived).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
   const sh = sheet(`<h2>Новая запись</h2>
-    <div class="field"><label for="sc">Клиент</label><select id="sc"><option value="">Выбери клиента</option>${cl.map(c => `<option value="${c.id}"${c.id === d.clientId ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}<option value="__new">+ Новый клиент</option></select></div>
+    <div class="field"><label for="sc">Подопечный</label><select id="sc"><option value="">Выбери подопечного</option>${cl.map(c => `<option value="${c.id}"${c.id === d.clientId ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}<option value="__new">+ Новый подопечный</option></select></div>
     <div class="grid2"><div class="field"><label for="sdt">Дата</label><input id="sdt" type="date" value="${d.date}"></div>
     <div class="field"><label for="stm">Время</label><input id="stm" type="time" value="${d.time}" step="300"></div></div>
     <div class="field"><label for="sdu">Длительность</label><select id="sdu">${[30, 45, 60, 75, 90, 120].map(m => `<option value="${m}"${String(m) === d.dur ? ' selected' : ''}>${m} мин</option>`).join('')}</select></div>
@@ -772,7 +808,7 @@ function openSessionEditor(pre = {}){
     else if (s === 'wd') { const v = +b.dataset.v; d.wds = d.wds.includes(v) ? d.wds.filter(x => x !== v) : [...d.wds, v]; paintWd(); }
     else if (s === 'save') {
       const cid = sh.querySelector('#sc').value, date = sh.querySelector('#sdt').value, time = sh.querySelector('#stm').value, dur = Number(sh.querySelector('#sdu').value);
-      if (!cid || cid === '__new') { toast('Выбери клиента'); return; } if (!date || !time) { toast('Укажи дату и время'); return; }
+      if (!cid || cid === '__new') { toast('Выбери подопечного'); return; } if (!date || !time) { toast('Укажи дату и время'); return; }
       let dates = [date];
       if (d.repeat) { if (!d.wds.length) { toast('Выбери дни недели'); return; } const mon = mondayOf(date), weeks = Number(sh.querySelector('#swk').value); dates = [];
         for (let w = 0; w < weeks; w++) for (const wd of d.wds.slice().sort()) { const x = addDays(mon, w * 7 + wd); if (x >= date) dates.push(x); } }
@@ -788,9 +824,9 @@ function openSession(id){
   const pay = s.single ? `Разовое занятие, ${money(s.price)}` : s.passId ? 'Списано с абонемента' : s.status === 'planned' ? (passLine(s.clientId) ? `Абонемент: ${passLine(s.clientId)}` : `Абонемента нет, разовое: ${money(sessPrice(c))}`) : '';
   const sh = sheet(`<h2>${esc(c.name)}</h2><p class="prev">${fmtDay(s.date)}, ${s.time}–${addMin(s.time, s.dur)}${pay ? `<br>${pay}` : ''}</p>
     <div class="seg st" style="margin-bottom:14px">${Object.entries(STATUS).map(([k, [l]]) => `<button class="chip" data-s="st" data-v="${k}" aria-pressed="${s.status === k}">${l}</button>`).join('')}</div>
-    ${w ? `<button class="btn accent" data-s="open">${w.finishedAt ? 'Открыть тренировку' : 'Продолжить тренировку'}</button>${w.finishedAt ? '<button class="btn ghost" data-s="report">Отчёт клиенту</button>' : ''}`
+    ${w ? `<button class="btn accent" data-s="open">${w.finishedAt ? 'Открыть тренировку' : 'Продолжить тренировку'}</button>${w.finishedAt ? '<button class="btn ghost" data-s="report">Отчёт подопечному</button>' : ''}`
       : s.status === 'planned' ? '<button class="btn accent" data-s="start">Начать тренировку</button>' : ''}
-    <button class="btn ghost" data-s="client">Карточка клиента</button>
+    <button class="btn ghost" data-s="client">Карточка подопечного</button>
     <details class="more"><summary>Перенести</summary><div class="grid2" style="margin-top:10px"><div class="field"><label for="mdt">Дата</label><input id="mdt" type="date" value="${s.date}"></div>
       <div class="field"><label for="mtm">Время</label><input id="mtm" type="time" value="${s.time}" step="300"></div></div><button class="btn ghost" data-s="move">Перенести</button></details>
     <details class="more"><summary>Удалить</summary><div style="margin-top:10px"><button class="btn ghost danger" data-s="del">Удалить эту запись</button>
@@ -812,24 +848,24 @@ const GOALS = ['Похудение', 'Набор массы', 'Сила', 'Зд�
 function clientCard(c){
   const nx = nextSession(c.id), bal = balance(c.id), pl = passLine(c.id);
   const p = activePass(c.id), low = p && p.total - passUsed(p) <= 2;
-  return `<button class="ccard" data-act="openclient" data-id="${c.id}"><span class="ava">${esc(initials(c.name))}</span><span class="cinfo"><b>${esc(c.name)}</b>
+  return `<button class="ccard" data-act="openclient" data-id="${c.id}">${ava(c)}<span class="cinfo"><b>${esc(c.name)}</b>
     <small>${nx ? `Следующая: ${sessLabel(nx)}` : 'Нет записей'}${c.goal ? `, ${esc(c.goal.toLowerCase())}` : ''}</small>
     <span class="tags">${bal < 0 ? `<i class="tag bad">Долг ${money(-bal)}</i>` : ''}${pl ? `<i class="tag${low ? ' warn' : ''}">Абонемент: ${pl}</i>` : ''}${c.limits ? '<i class="tag warn">Ограничения</i>' : ''}</span></span></button>`;
 }
 function clientListHtml(){
   const q = CQ.trim().toLowerCase(), list = S.clients.filter(c => !!c.archived === CARCH && (!q || c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)))
     .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
-  return list.map(clientCard).join('') || `<p class="empty">${q ? 'Никого не нашлось' : CARCH ? 'Архив пуст' : 'Клиентов пока нет'}</p>`;
+  return list.map(clientCard).join('') || `<p class="empty">${q ? 'Никого не нашлось' : CARCH ? 'Архив пуст' : 'Подопечных пока нет'}</p>`;
 }
 function viewClients(){
   return `<input id="cq" placeholder="Поиск по имени или телефону" value="${esc(CQ)}" autocomplete="off" style="margin-bottom:10px">
     <div class="seg" style="margin-bottom:12px"><button class="chip" data-act="carch" data-v="0" aria-pressed="${!CARCH}">Активные</button><button class="chip" data-act="carch" data-v="1" aria-pressed="${CARCH}">Архив</button></div>
-    <div id="clist">${clientListHtml()}</div><button class="btn accent" data-act="newclient" style="margin-top:8px">+ Клиент</button>`;
+    <div id="clist">${clientListHtml()}</div><button class="btn accent" data-act="newclient" style="margin-top:8px">+ Подопечный</button>`;
 }
 function openClientEditor(c, onSaved, onBack){
   const d = c ? { ...c } : { name: '', phone: '', sex: '', age: '', height: '', weight: '', goal: '', limits: '', notes: '', price: '' };
   const has = c && (S.sessions.some(s => s.clientId === c.id) || S.workouts.some(w => w.clientId === c.id) || S.payments.some(p => p.clientId === c.id));
-  const sh = sheet(`<h2>${c ? 'Клиент' : 'Новый клиент'}</h2>
+  const sh = sheet(`<h2>${c ? 'Подопечный' : 'Новый подопечный'}</h2>
     <div class="field"><label for="cn">Имя</label><input id="cn" value="${esc(d.name)}" placeholder="Имя и фамилия"></div>
     <div class="field"><label for="cph">Телефон</label><input id="cph" type="tel" value="${esc(d.phone)}" placeholder="+7…"></div>
     <div class="field"><label>Пол</label><div class="seg"><button class="chip" data-s="sex" data-v="m" aria-pressed="${d.sex === 'm'}">Мужской</button><button class="chip" data-s="sex" data-v="f" aria-pressed="${d.sex === 'f'}">Женский</button></div></div>
@@ -837,26 +873,28 @@ function openClientEditor(c, onSaved, onBack){
       <div class="field"><label for="ch">Рост, см</label><input id="ch" inputmode="numeric" value="${esc(d.height)}"></div>
       <div class="field"><label for="cw">Вес, кг</label><input id="cw" inputmode="decimal" value="${esc(String(d.weight || '').replace('.', ','))}"></div></div>
     <div class="field"><label>Цель</label><div class="actions" style="margin-top:0">${GOALS.map(g => `<button class="chip" data-s="goal" data-v="${g}" aria-pressed="${d.goal === g}">${g}</button>`).join('')}</div></div>
+    <div class="field"><label>Цвет в календаре</label><div class="swatches">${COLORS.map(col => `<button class="sw" data-s="col" data-v="${col}" style="background:${col}" aria-label="Цвет" aria-pressed="${(d.color || '') === col}"></button>`).join('')}</div></div>
     <div class="field"><label for="clim">Ограничения и травмы</label><textarea id="clim" rows="2" placeholder="Например, грыжа L5, не делать осевую нагрузку">${esc(d.limits)}</textarea></div>
     <div class="field"><label for="cnot">Заметки</label><textarea id="cnot" rows="2" placeholder="Предпочтения, режим, всё что важно помнить">${esc(d.notes)}</textarea></div>
     <div class="field"><label for="cpr">Цена разового занятия, ${esc(S.settings.cur)}</label><input id="cpr" inputmode="numeric" value="${esc(d.price)}" placeholder="${S.settings.price ? 'по умолчанию ' + esc(S.settings.price) : 'задай в «Ещё»'}"></div>
-    <button class="btn accent" data-s="save">${c ? 'Сохранить' : 'Добавить клиента'}</button>${onBack ? '<button class="btn ghost" data-s="back">Назад</button>' : ''}
-    ${c ? `<button class="btn ghost" data-s="arch">${c.archived ? 'Вернуть из архива' : 'В архив'}</button>${has ? '' : '<button class="btn ghost danger" data-s="del">Удалить клиента</button>'}` : ''}`);
+    <button class="btn accent" data-s="save">${c ? 'Сохранить' : 'Добавить подопечного'}</button>${onBack ? '<button class="btn ghost" data-s="back">Назад</button>' : ''}
+    ${c ? `<button class="btn ghost" data-s="arch">${c.archived ? 'Вернуть из архива' : 'В архив'}</button>${has ? '' : '<button class="btn ghost danger" data-s="del">Удалить подопечного</button>'}` : ''}`);
   sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'col') { d.color = b.dataset.v; sh.querySelectorAll('[data-s=col]').forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
     if (s === 'sex' || s === 'goal') { d[s] = d[s] === b.dataset.v ? '' : b.dataset.v; sh.querySelectorAll(`[data-s=${s}]`).forEach(x => x.setAttribute('aria-pressed', x.dataset.v === d[s])); }
     else if (s === 'back') onBack();
     else if (s === 'save') { const v = id => sh.querySelector(id).value.trim(), name = v('#cn'); if (!name) { toast('Напиши имя'); sh.querySelector('#cn').focus(); return; }
-      const f = { name, phone: v('#cph'), sex: d.sex, age: v('#cage'), height: v('#ch'), weight: v('#cw').replace(',', '.'), goal: d.goal, limits: v('#clim'), notes: v('#cnot'), price: v('#cpr') };
-      let id; if (c) { Object.assign(c, f); touch(c); id = c.id; } else { id = uid(); S.clients.push(touch({ id, created: today(), program: { days: [] }, ...f })); }
-      save(); toast(c ? 'Сохранено' : 'Клиент добавлен'); if (onSaved) onSaved(id); else { closeSheet(); render(); } }
-    else if (s === 'arch') { c.archived = !c.archived; touch(c); save(); closeSheet(); render(); toast(c.archived ? 'Клиент в архиве' : 'Клиент снова активен'); }
+      const f = { name, phone: v('#cph'), sex: d.sex, age: v('#cage'), height: v('#ch'), weight: v('#cw').replace(',', '.'), goal: d.goal, limits: v('#clim'), notes: v('#cnot'), price: v('#cpr'), ...(d.color ? { color: d.color } : {}) };
+      let id; if (c) { Object.assign(c, f); touch(c); id = c.id; } else { id = uid(); S.clients.push(touch({ id, created: today(), program: { days: [] }, color: d.color || pickColor(), ...f })); }
+      save(); toast(c ? 'Сохранено' : 'Подопечный добавлен'); if (onSaved) onSaved(id); else { closeSheet(); render(); } }
+    else if (s === 'arch') { c.archived = !c.archived; touch(c); save(); closeSheet(); render(); toast(c.archived ? 'Подопечный в архиве' : 'Подопечный снова активен'); }
     else if (s === 'del') { if (!confirm(`Удалить ${c.name}?`)) return; S.clients = S.clients.filter(x => x !== c); S.passes = S.passes.filter(p => p.clientId !== c.id); save(); closeSheet(); VIEW = []; render(); } };
 }
 function viewClient(id){
-  const c = clientById(id); if (!c) return '<p class="empty">Клиент не найден</p>';
+  const c = clientById(id); if (!c) return '<p class="empty">Подопечный не найден</p>';
   const bal = balance(id), nx = nextSession(id), lw = S.workouts.find(w => w.clientId === id && isLive(w));
   const facts = [c.age ? `${c.age} ${plural(+c.age, 'год', 'года', 'лет')}` : '', c.height ? `${c.height} см` : '', c.weight ? `${fmtW(num(c.weight))} кг` : '', c.goal].filter(Boolean);
-  let h = `<div class="board chead"><div class="crow"><span class="ava big">${esc(initials(c.name))}</span><div><b class="cname">${esc(c.name)}</b>
+  let h = `<div class="board chead"><div class="crow">${ava(c, true)}<div><b class="cname">${esc(c.name)}</b>
       <span class="small">${facts.map(esc).join(', ') || 'Данные не заполнены'}</span>${c.phone ? `<a class="small" href="tel:${esc(c.phone.replace(/[^\d+]/g, ''))}">${esc(c.phone)}</a>` : ''}</div></div>
     ${c.limits ? `<div class="alert">⚠ ${esc(c.limits)}</div>` : ''}${c.notes ? `<p class="small" style="margin-top:8px">${esc(c.notes)}</p>` : ''}
     <div class="stats"><div class="stat"><b>${nx ? `${shortDay(nx.date)} ${nx.time}` : '—'}</b><span>следующая</span></div>
@@ -986,7 +1024,7 @@ function viewMore(){
       <div class="field"><label for="st-rest">Отдых по умолчанию</label><select id="st-rest" data-st="rest">${REST_OPTS.slice(1).map(([v, l]) => `<option value="${v}"${String(st.rest) === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div></div>
     <div class="field"><label for="st-ns">Неявка без предупреждения</label><select id="st-ns" data-st="noshow"><option value="1"${st.noshow !== '0' ? ' selected' : ''}>Списывается как занятие</option><option value="0"${st.noshow === '0' ? ' selected' : ''}>Не списывается</option></select></div>
     <button class="btn ghost" data-act="myex">Мои упражнения</button></div>
-  <div class="card"><h2>Данные</h2><p class="small" style="margin-bottom:12px">Вся база клиентов хранится только на этом телефоне: ${S.clients.length} ${plural(S.clients.length, 'клиент', 'клиента', 'клиентов')}, ${S.workouts.length} ${plural(S.workouts.length, 'тренировка', 'тренировки', 'тренировок')}. Регулярно сохраняй копию в «Файлы» или iCloud. Последняя копия: ${S.lastExport ? fmtDay(S.lastExport).toLowerCase() : 'ещё не сохранялась'}.</p>
+  <div class="card"><h2>Данные</h2><p class="small" style="margin-bottom:12px">Вся база подопечных хранится только на этом телефоне: ${S.clients.length} ${plural(S.clients.length, 'подопечный', 'подопечных', 'подопечных')}, ${S.workouts.length} ${plural(S.workouts.length, 'тренировка', 'тренировки', 'тренировок')}. Регулярно сохраняй копию в «Файлы» или iCloud. Последняя копия: ${S.lastExport ? fmtDay(S.lastExport).toLowerCase() : 'ещё не сохранялась'}.</p>
     <button class="btn" data-act="export">Сохранить копию данных</button><button class="btn ghost" data-act="import">Восстановить из копии</button><input type="file" id="importFile" accept="application/json,.json" hidden>
     ${S.clients.some(c => c.demo) ? '<button class="btn ghost danger" data-act="cleardemo">Убрать пример данных</button>' : ''}</div>
   <p class="small" style="text-align:center;margin:16px 0 6px">Подход Тренер, демо-версия ${APP_VERSION}</p>`;
@@ -1010,7 +1048,7 @@ function seedDemo(){
     { id: uid(), name: 'День A', items: [{ exId: ex('Приседания со штангой'), sets: 3, target: '10–12', rest: '120' }, { exId: ex('Жим гантелей на наклонной'), sets: 3, target: '10–12', rest: '' }, { exId: ex('Тяга верхнего блока'), sets: 3, target: '12', rest: '' }, { exId: ex('Планка, сек'), sets: 3, target: '30', rest: '45' }] },
     { id: uid(), name: 'День B', items: [{ exId: ex('Румынская тяга'), sets: 3, target: '10', rest: '120' }, { exId: ex('Жим стоя'), sets: 3, target: '8–10', rest: '' }, { exId: ex('Тяга гантели одной рукой'), sets: 3, target: '10', rest: '' }, { exId: ex('Скручивания'), sets: 3, target: '15', rest: '45' }] }] });
   S.programs.push(prog);
-  const mk = (name, f) => { const c = touch({ id: uid(), demo: true, created: t, program: { name: prog.name, days: copyDays(prog.days) }, name, phone: '', sex: '', age: '', height: '', weight: '', goal: '', limits: '', notes: '', price: '', ...f }); S.clients.push(c); return c; };
+  const mk = (name, f) => { const c = touch({ id: uid(), demo: true, created: t, color: pickColor(), program: { name: prog.name, days: copyDays(prog.days) }, name, phone: '', sex: '', age: '', height: '', weight: '', goal: '', limits: '', notes: '', price: '', ...f }); S.clients.push(c); return c; };
   const a = mk('Анна Смирнова', { sex: 'f', age: '29', height: '168', weight: '64', goal: 'Похудение', limits: 'Болит правое колено, без прыжков и глубоких выпадов', price: '1500' });
   const o = mk('Олег Петров', { sex: 'm', age: '35', height: '182', weight: '91', goal: 'Сила', price: '1500' });
   const m = mk('Мария Ковалёва', { sex: 'f', age: '42', height: '160', weight: '70', goal: 'Здоровье и ОФП', price: '1500', notes: 'Только утро, до 10:00' });
@@ -1028,14 +1066,16 @@ function seedDemo(){
       const w = touch({ id: uid(), clientId: a.id, sessionId: s.id, date: s.date, dayId: day.id, dayName: day.name, plan: day.items.map(i => ({ ...i })), notes: {}, note: '',
         sets: [{ id: uid(), exId: sq, w: 30, r: 12, t: st + 6e5 }, { id: uid(), exId: sq, w: 35, r: 10, t: st + 9e5 }, { id: uid(), exId: pr, w: 10, r: 12, t: st + 15e5 }], startedAt: st, finishedAt: st + 3300e3 });
       S.workouts.push(w); s.workoutId = w.id; } }
-  save(); render(); toast('Пример загружен: 3 клиента, программа и расписание');
+  save(); render(); toast('Пример загружен: 3 подопечных, программа и расписание');
 }
 /* ---------- события ---------- */
 const curClient = () => { const v = VIEW.at(-1); return v && v.t === 'client' ? clientById(v.id) : null; };
 const curProg = () => { const v = VIEW.at(-1); return v && v.t === 'program' ? S.programs.find(p => p.id === v.id) : null; };
 const ACTIONS = {
   back: () => back(),
-  week: t => { SD = addDays(SD, Number(t.dataset.d)); render(); },
+  week: t => { SD = addDays(SD, Number(t.dataset.d) * 7); render(); },
+  month: t => { SD = shiftMonth(SD, Number(t.dataset.d)); render(); },
+  calmode: t => { S.settings.cal = t.dataset.v; save(); render(); },
   today: () => { SD = today(); render(); },
   sday: t => { SD = t.dataset.d; render(); },
   sess: t => openSession(t.dataset.id),
@@ -1043,7 +1083,7 @@ const ACTIONS = {
   addsess: () => openSessionEditor({ date: SD }),
   addsessfor: t => openSessionEditor({ clientId: t.dataset.id, date: today() }),
   demo: () => seedDemo(),
-  cleardemo: () => { if (!confirm('Убрать клиентов, расписание и программу из примера? Твои данные останутся.')) return;
+  cleardemo: () => { if (!confirm('Убрать подопечных, расписание и программу из примера? Твои данные останутся.')) return;
     const ids = new Set(S.clients.filter(c => c.demo).map(c => c.id)), own = x => ids.has(x.clientId);
     S.clients = S.clients.filter(c => !c.demo); S.sessions = S.sessions.filter(x => !own(x)); S.workouts = S.workouts.filter(x => !own(x));
     S.passes = S.passes.filter(x => !own(x)); S.payments = S.payments.filter(x => !own(x)); S.programs = S.programs.filter(p => !p.demo); save(); VIEW = []; render(); },
@@ -1069,7 +1109,7 @@ const ACTIONS = {
   openprog: t => go({ t: 'program', id: t.dataset.id }),
   newprog: () => { const p = touch({ id: uid(), name: 'Новая программа', days: [] }); S.programs.push(p); save(); go({ t: 'program', id: p.id }); },
   assignprog: t => pickClient('Кому назначить?', cid => assignProgram(t.dataset.id, cid)),
-  delprog: t => { if (!confirm('Удалить программу из библиотеки? У клиентов, которым она назначена, всё останется.')) return; S.programs = S.programs.filter(p => p.id !== t.dataset.id); save(); back(); },
+  delprog: t => { if (!confirm('Удалить программу из библиотеки? У подопечных, которым она назначена, всё останется.')) return; S.programs = S.programs.filter(p => p.id !== t.dataset.id); save(); back(); },
   sellpass: t => openSellPass(t.dataset.id),
   pay: t => openPay(t.dataset.id),
   delpass: t => { const p = S.passes.find(x => x.id === t.dataset.id); if (!p || !confirm('Удалить абонемент? Занятия по нему станут разовыми.')) return;
