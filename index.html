@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EDEFF2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#11151B" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Тренер">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<title>Подход Тренер</title>
+<style>
+:root{
+  --bg:#EDEFF2;--surface:#FFFFFF;--surface2:#F3F4F7;--ink:#18202B;--muted:#6B7480;--line:#DADEE4;
+  --red:#D7392F;--green:#2F9A5A;--blue:#2E62D9;--yellow:#B98712;
+  --num:ui-rounded,"SF Pro Rounded",-apple-system,system-ui,sans-serif;
+  --text:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+  --accent:var(--ink);color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#11151B;--surface:#1B2129;--surface2:#252C36;--ink:#E8ECF1;--muted:#8D96A3;--line:#2E3642;
+  --red:#F0574C;--green:#45B873;--blue:#6A95F7;--yellow:#E3B341;color-scheme:dark;
+}}
+body{--accent:var(--blue)}
+body[data-screen=workout]{--accent:var(--red)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+html{scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));scroll-padding-top:calc(70px + env(safe-area-inset-top,0px))}
+body{background:var(--bg);color:var(--ink);font:16px/1.4 var(--text);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+button{cursor:pointer;font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header{position:sticky;top:0;z-index:5;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;max-width:640px;margin:0 auto}
+main{padding:4px 16px calc(100px + env(safe-area-inset-bottom,0px));max-width:640px;margin:0 auto}
+nav{position:fixed;bottom:0;left:0;right:0;z-index:6;display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border-top:1px solid var(--line);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px))}
+nav button{background:none;border:0;color:var(--muted);font:500 11px var(--text);display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px}
+nav svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav button[aria-current=page]{color:var(--ink)}
+nav button[aria-current=page] svg{stroke:var(--accent);stroke-width:2.2}
+.datebar{display:flex;align-items:center;gap:6px}
+.datebar h1{font:700 22px/1.1 var(--num);min-width:7.5em;text-align:center}
+.title{font:700 30px/1.1 var(--num);letter-spacing:-.01em}
+.iconbtn{width:40px;height:40px;border-radius:20px;border:0;background:var(--surface);display:grid;place-items:center;font:500 22px/1 var(--num)}
+.chip{border:0;border-radius:999px;padding:8px 13px;background:var(--surface2);font:600 14px var(--text);white-space:nowrap}
+header .chip{background:var(--surface)}
+.board{background:var(--surface);border-radius:22px;padding:18px 18px 16px;margin:6px 0 14px}
+.cap{color:var(--muted);font-size:15px}
+.big{font:700 52px/1.05 var(--num);font-variant-numeric:tabular-nums;letter-spacing:-.025em;margin-top:2px}
+.unit{font-size:20px;font-weight:600;letter-spacing:0;color:var(--muted)}
+.deficit{color:var(--blue)}.surplus{color:var(--yellow)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:16px;padding-top:14px;border-top:1px solid var(--line)}
+.stat b{display:block;font:650 21px/1.2 var(--num);font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+.ex{background:var(--surface);border-radius:16px;padding:14px 14px 12px 16px;margin-bottom:10px;position:relative;overflow:hidden}
+.ex::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
+.ex-head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.ex h3{font:600 17px/1.3 var(--text)}
+.prev{color:var(--muted);font-size:14px;margin:3px 0 10px}
+.sets{display:flex;flex-wrap:wrap;gap:6px}
+.set{background:var(--surface2);border:0;border-radius:10px;padding:7px 11px;font:600 16px var(--num);font-variant-numeric:tabular-nums}
+.set small{color:var(--muted);font-weight:500;font-size:13px}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;font:600 17px var(--text);background:var(--ink);color:var(--bg);text-align:center}
+.btn.accent{background:var(--accent);color:#fff}
+.btn.ghost{background:var(--surface2);color:var(--ink)}
+main .btn.ghost{background:var(--surface)}
+.btn + .btn{margin-top:8px}
+.linkbtn{border:0;background:none;color:var(--blue);font:inherit;text-decoration:underline;padding:0}
+.empty{color:var(--muted);text-align:center;padding:28px 16px}
+.card{background:var(--surface);border-radius:16px;padding:14px 16px;margin-bottom:12px}
+.card h2{font:600 17px var(--text);margin-bottom:10px;display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.card h2 .meta{font:500 15px var(--num);color:var(--muted)}
+.small{font-size:14px;color:var(--muted)}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:14px;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:0 8px}
+input,select{font:500 17px var(--text);padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);width:100%;-webkit-appearance:none;appearance:none;min-width:0}
+select{background-image:linear-gradient(45deg,transparent 50%,var(--muted) 50%),linear-gradient(135deg,var(--muted) 50%,transparent 50%);background-position:calc(100% - 18px) 52%,calc(100% - 13px) 52%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
+input:focus,select:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+.stepper{display:grid;grid-template-columns:60px 1fr 60px;gap:8px}
+.stepper input{text-align:center;font:700 30px var(--num);padding:8px;font-variant-numeric:tabular-nums}
+.stepper button{border:0;border-radius:12px;background:var(--surface2);font:500 26px var(--num)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;width:100%;background:none;border:0;border-bottom:1px solid var(--line);text-align:left;font:inherit}
+.row:last-child{border-bottom:0}
+.row .meta{color:var(--muted);font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.row .nm{min-width:0}
+.row .nm small{display:block;color:var(--muted);font-size:13px}
+.sub{font-size:13px;color:var(--muted);margin:14px 0 2px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.bar{height:10px;border-radius:5px;background:var(--surface2);overflow:hidden;margin-top:14px}
+.bar i{display:block;height:100%;background:var(--accent);border-radius:5px}
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.macros b{font:650 20px var(--num);font-variant-numeric:tabular-nums}
+.macros span{display:block;color:var(--muted);font-size:13px}
+.calc{font:500 16px var(--num);margin:4px 0 14px;font-variant-numeric:tabular-nums}
+.calc b{font-size:22px}
+canvas{width:100%;height:200px;display:block;margin-top:6px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:5px;margin-right:6px;vertical-align:-1px}
+.inline{display:flex;gap:8px}
+.inline input{flex:1}
+.inline .btn{width:auto;padding:12px 18px}
+.sheet-wrap{position:fixed;left:0;right:0;top:var(--vvt,0px);height:var(--vvh,100%);z-index:20;background:rgba(8,12,18,0);display:flex;align-items:flex-end;transition:background .2s;overscroll-behavior:none;touch-action:none}
+.sheet-wrap.open{background:rgba(8,12,18,.45)}
+.sheet{background:var(--surface);width:100%;max-width:640px;margin:0 auto;border-radius:22px 22px 0 0;padding:8px 16px calc(16px + env(safe-area-inset-bottom,0px));max-height:94%;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;touch-action:pan-y;transform:translateY(100%);transition:transform .25s ease}
+.sheet.dragging{transition:none}
+body.locked{position:fixed;left:0;right:0;overflow:hidden}
+.sheet-wrap.open .sheet{transform:none}
+.sheet input,.sheet select,.sheet textarea,.sheet .stepper button,.sheet .chip{background-color:var(--surface2)}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px;box-shadow:0 0 0 14px transparent}
+.sheet h2:first-of-type{padding-top:2px}
+.sheet h2{font:700 23px/1.2 var(--num);margin-bottom:4px}
+#toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 12px);transform:translate(-50%,-16px);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:15px;opacity:0;pointer-events:none;transition:.2s;z-index:30;max-width:90%;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+#restbar{position:fixed;left:0;right:0;margin:0 auto;width:calc(100% - 16px);max-width:624px;bottom:calc(66px + env(safe-area-inset-bottom,0px));z-index:7;background:var(--ink);color:var(--bg);border-radius:18px;padding:10px 12px 12px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;box-shadow:0 8px 28px rgba(0,0,0,.28)}
+#restbar[hidden]{display:none}
+#restbar.done{background:var(--red);color:#fff}
+.rt-info{flex:1;display:flex;flex-direction:column;min-width:0}
+.rt-label{font-size:13px;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rt-time{font:700 32px/1 var(--num);font-variant-numeric:tabular-nums}
+.rt-btns{display:flex;gap:6px}
+.rt-btns button{border:0;border-radius:11px;padding:10px 11px;background:rgba(128,128,128,.28);color:inherit;font:600 15px var(--text)}
+.rt-track{flex-basis:100%;height:4px;border-radius:2px;background:rgba(128,128,128,.35);overflow:hidden}
+.rt-fill{display:block;height:100%;width:0;background:var(--red);transition:width .25s linear}
+#restbar.done .rt-fill{background:#fff}
+body.has-timer main{padding-bottom:calc(200px + env(safe-area-inset-bottom,0px))}
+.count{font:600 14px var(--num);color:var(--muted);background:var(--surface2);border-radius:999px;padding:4px 10px;white-space:nowrap}
+.ex.complete .count{background:var(--accent);color:#fff}
+.goal{font-size:14px;margin-top:3px}
+.logrow{display:flex;align-items:center;gap:6px;margin-top:10px}
+.logrow input{padding:10px 6px;text-align:center;font:600 19px var(--num);flex:1}
+.logrow .x{color:var(--muted);font:500 18px var(--num)}
+.logbtn{flex:0 0 54px;height:46px;border:0;border-radius:12px;background:var(--accent);color:#fff;font:700 21px var(--num)}
+.iconbtn.sm{width:46px;height:46px;border-radius:12px;background:var(--surface2);font-size:20px;flex:0 0 46px}
+.ex-head .iconbtn.sm{width:32px;height:32px;flex:0 0 32px;font-size:18px;color:var(--muted)}
+.iconbtn:disabled{opacity:.35}
+.sw-time{font:700 80px/1 var(--num);text-align:center;margin:24px 0;font-variant-numeric:tabular-nums}
+.ti{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:8px}
+.ti-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}
+.ti-head b{font-weight:600;min-width:0}
+.ti-ctl{display:flex;gap:4px;flex:0 0 auto}
+.ti-ctl button{width:34px;height:34px;border:0;border-radius:10px;background:var(--surface2);font:600 16px var(--num)}
+.ti-ctl button:disabled{opacity:.3}
+.grid3{display:grid;grid-template-columns:.8fr 1fr 1.2fr;gap:6px}
+.grid3 label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:4px;min-width:0}
+.grid3 input,.grid3 select{padding:9px 8px;font-size:16px}
+.grid3 select{padding-right:22px;background-position:calc(100% - 13px) 52%,calc(100% - 8px) 52%}
+.part{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--line)}
+.part .nm{flex:1;min-width:0}.part .nm small{display:block;color:var(--muted);font-size:13px}
+.part input{width:76px;flex:0 0 76px;text-align:center;padding:9px}
+.part .iconbtn.sm{width:36px;height:36px;flex:0 0 36px}
+.kv{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.kv:last-of-type{border-bottom:0}
+.kv span{color:var(--muted);font-size:15px}.kv b{font:600 16px var(--num);text-align:right}.kv small{color:var(--muted);font-weight:500}
+.weeknav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.weeknav h2{margin:0;flex-direction:column;align-items:center;gap:0}
+.weeknav .iconbtn{background:var(--surface2)}
+.rec{font-size:15px;padding:3px 0}
+.btn.danger{color:var(--red)}
+.btn:disabled{opacity:.45}
+.card h2 .chip{font-size:13px;padding:6px 11px}
+.chip[aria-pressed=true]{background:var(--accent);color:#fff}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.seg .chip{flex:1;padding:11px 10px;font-size:15px}
+.tpl-start .row .meta{color:var(--accent);font-weight:600}
+@media (prefers-reduced-motion:reduce){.sheet,.sheet-wrap,#toast{transition:none}}
+
+.vtitle{font:700 20px/1.2 var(--num);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:4px 0 14px}
+.wday{border:0;background:var(--surface);border-radius:14px;padding:8px 0 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.wday span{font-size:12px;color:var(--muted)}.wday b{font:700 19px var(--num)}
+.wday i{font-style:normal;color:var(--accent);font-size:10px;line-height:10px;height:10px;letter-spacing:1px}
+.wday.now b{color:var(--accent)}.wday.sel{background:var(--accent);color:#fff}.wday.sel span,.wday.sel i,.wday.sel.now b{color:#fff}
+.dayhead{display:flex;justify-content:space-between;align-items:baseline;margin:0 2px 8px}.dayhead h2{font:700 20px var(--num)}
+.sess{display:flex;align-items:center;gap:8px;background:var(--surface);border-radius:16px;margin-bottom:8px;padding-right:10px;position:relative;overflow:hidden}
+.sess::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--accent)}
+.sess.done::before{background:var(--green)}.sess.noshow::before{background:var(--yellow)}.sess.cancel{opacity:.55}.sess.cancel::before{background:var(--muted)}
+.sess-main{flex:1;display:flex;align-items:center;gap:12px;border:0;background:none;padding:12px 4px 12px 16px;text-align:left;min-width:0}
+.sess-time{display:flex;flex-direction:column;min-width:52px}.sess-time b{font:700 19px var(--num)}.sess-time small{color:var(--muted);font:500 13px var(--num)}
+.sess-info{flex:1;min-width:0;display:flex;flex-direction:column}.sess-info b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sess-info small{color:var(--muted);font-size:13px}
+.badge{font:600 12px var(--text);padding:4px 8px;border-radius:999px;background:var(--surface2);color:var(--muted);white-space:nowrap}
+.badge.ok{color:var(--green)}.badge.warn{color:var(--yellow)}.badge.live{background:var(--red);color:#fff}
+.chip.go{background:var(--accent);color:#fff}
+.ccard{display:flex;gap:12px;align-items:flex-start;width:100%;border:0;background:var(--surface);border-radius:16px;padding:12px 14px;margin-bottom:8px;text-align:left}
+.ava{flex:0 0 44px;height:44px;border-radius:22px;background:var(--surface2);display:grid;place-items:center;font:700 16px var(--num);color:var(--accent)}
+.ava.big{flex-basis:56px;height:56px;border-radius:28px;font-size:20px}
+.cinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.cinfo b{font-weight:600}.cinfo small{color:var(--muted);font-size:13px}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-style:normal;font-size:12px;font-weight:600;padding:3px 8px;border-radius:999px;background:var(--surface2);color:var(--muted)}.tag.warn{color:var(--yellow)}.tag.bad{color:var(--red)}
+.bad{color:var(--red)}.plus{color:var(--green)}
+.chead .crow{display:flex;gap:12px;align-items:center}.chead .crow div{display:flex;flex-direction:column;gap:2px;min-width:0}.cname{font:700 20px/1.2 var(--num)}
+.chead .actions{margin-top:14px}
+.alert{background:var(--surface2);background:color-mix(in srgb,var(--yellow) 18%,var(--surface));border-radius:12px;padding:10px 12px;font-size:14px;margin:10px 0}
+.tabs{margin-bottom:12px}.tabs{gap:4px}.tabs .chip{padding:10px 2px;font-size:13px;min-width:0}
+.day{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line)}
+.day-main{flex:1;border:0;background:none;text-align:left;padding:12px 0;display:flex;flex-direction:column;min-width:0}.day-main b{font-weight:600}.day-main small{color:var(--muted);font-size:13px}
+.day + .btn{margin-top:10px}
+.pcard{display:flex;flex-direction:column;width:100%;border:0;background:var(--surface);border-radius:16px;padding:14px 16px;margin-bottom:8px;text-align:left}.pcard b{font-weight:600;font-size:17px}.pcard small{color:var(--muted);font-size:14px;margin-top:2px}
+.pass{padding:10px 0;border-bottom:1px solid var(--line)}.pass.closed{opacity:.55}.pass-top{display:flex;justify-content:space-between;align-items:center;gap:8px}.pass .bar{margin:8px 0 6px}
+.pass .iconbtn.sm,.ex-tools .iconbtn.sm{width:32px;height:32px;flex:0 0 32px;font-size:16px;color:var(--muted)}
+.pass + .btn{margin-top:12px}
+.note{font-size:14px;font-style:italic;background:var(--surface2);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+.ex-tools{display:flex;align-items:center;gap:6px}
+textarea{font:500 16px/1.4 var(--text);padding:12px;border-radius:12px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);width:100%;resize:vertical;-webkit-appearance:none}
+textarea:focus{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+input[type=date],input[type=time]{min-height:48px;text-align:left;display:block}
+.grid3b{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:0 8px}
+details.more{margin-top:12px;border-top:1px solid var(--line);padding-top:8px}
+details.more summary{color:var(--muted);font-weight:600;padding:6px 0;list-style:none}details.more summary::-webkit-details-marker{display:none}details.more summary::after{content:" ›"}
+.seg.st .chip{flex:1 1 40%}.seg.wds .chip{flex:1;padding:10px 0;min-width:0}
+.card > .btn{margin-top:8px}
+</style>
+</head>
+<body data-screen="schedule">
+<header id="top"></header>
+<main id="main"></main>
+<nav id="nav" aria-label="Разделы">
+  <button data-tab="schedule"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Расписание</button>
+  <button data-tab="clients"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c1-3.6 3.6-5.5 6.5-5.5s5.5 1.9 6.5 5.5M16 4.8a3.3 3.3 0 0 1 0 6.4M18 14.8c1.8.7 3 2.4 3.6 5.2"/></svg>Клиенты</button>
+  <button data-tab="programs"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2.5"/><path d="M9 4V2.8h6V4M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>Программы</button>
+  <button data-tab="more"><svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/></svg>Ещё</button>
+</nav>
+<div id="restbar" hidden><div class="rt-info"><span class="rt-label">Отдых</span><b class="rt-time">0:00</b></div>
+  <div class="rt-btns"><button data-act="rest" data-d="-15">−15</button><button data-act="rest" data-d="15">+15</button><button data-act="rest" data-d="0">Пропустить</button></div>
+  <div class="rt-track"><i class="rt-fill"></i></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+'use strict';
+/* ---------- утилиты ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num = v => { const n = parseFloat(String(v ?? '').replace(',', '.').replace('−', '-')); return isFinite(n) ? n : NaN; };
+const r0 = n => Math.round(n), r1 = n => Math.round(n * 10) / 10;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const pad = n => String(n).padStart(2, '0');
+const dstr = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const today = () => dstr(new Date());
+const addDays = (s, n) => { const [y, m, d] = s.split('-').map(Number); return dstr(new Date(y, m - 1, d + n)); };
+const MONTHS = ['янв','фев','мар','апр','мая','июн','июл','авг','сен','окт','ноя','дек'];
+const WD = ['вс','пн','вт','ср','чт','пт','сб'];
+function fmtDay(s){ const [y,m,d] = s.split('-').map(Number); const t = today();
+  if (s === t) return 'Сегодня'; if (s === addDays(t,-1)) return 'Вчера'; if (s === addDays(t,1)) return 'Завтра';
+  return `${WD[new Date(y,m-1,d).getDay()]}, ${d} ${MONTHS[m-1]}`; }
+const shortDay = s => { const [, m, d] = s.split('-').map(Number); return `${d}.${pad(m)}`; };
+const fmtW = w => String(r1(w)).replace('.', ',');
+const fmtNum = n => Math.round(n).toLocaleString('ru-RU');
+const isTimed = ex => !!ex && (ex.timed !== undefined ? !!ex.timed : /,\s*сек$/.test(ex.name));
+const setTxt = s => { const ex = S && S.exercises.find(x => x.id === s.exId), r = isTimed(ex) ? `${s.r} с` : s.r;
+  return s.w > 0 ? `${ex && ex.bw ? '+' : ''}${fmtW(s.w)}×${r}` : isTimed(ex) ? r : `${r} повт.`; };
+const setHtml = s => { const ex = S.exercises.find(x => x.id === s.exId), t = isTimed(ex);
+  if (!(s.w > 0)) return t ? `${s.r}<small> с</small>` : `${s.r}<small> повт.</small>`;
+  return `${ex && ex.bw ? '+' : ''}${fmtW(s.w)}<small> кг</small> × ${s.r}${t ? '<small> с</small>' : ''}`; };
+function plural(n,a,b,c){ n = Math.abs(n) % 100; const n1 = n % 10; if (n > 10 && n < 20) return c; if (n1 > 1 && n1 < 5) return b; if (n1 === 1) return a; return c; }
+let toastT;
+function toast(m){ const t = $('#toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1900); }
+
+/* ---------- хранилище (IndexedDB, запасной вариант — localStorage) ---------- */
+const store = { db: null,
+  open(){ return new Promise((res, rej) => { const q = indexedDB.open('trener', 1);
+    q.onupgradeneeded = () => q.result.createObjectStore('kv');
+    q.onsuccess = () => { this.db = q.result; res(); }; q.onerror = () => rej(q.error); }); },
+  get(k){ return new Promise((res, rej) => { const q = this.db.transaction('kv').objectStore('kv').get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  set(k, v){ return new Promise((res, rej) => { const tx = this.db.transaction('kv', 'readwrite'); tx.objectStore('kv').put(v, k); tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); }); }
+};
+const DEFAULT_EX = [['Жим лёжа','Грудь'],['Жим гантелей на наклонной','Грудь'],['Разведения гантелей','Грудь'],['Отжимания на брусьях','Грудь'],
+  ['Приседания со штангой','Ноги'],['Жим ногами','Ноги'],['Румынская тяга','Ноги'],['Выпады','Ноги'],['Разгибания ног','Ноги'],['Сгибания ног','Ноги'],
+  ['Становая тяга','Спина'],['Подтягивания','Спина'],['Тяга верхнего блока','Спина'],['Тяга штанги в наклоне','Спина'],['Тяга гантели одной рукой','Спина'],
+  ['Жим стоя','Плечи'],['Махи гантелями в стороны','Плечи'],['Сгибания на бицепс','Руки'],['Молотки','Руки'],['Разгибания на трицепс на блоке','Руки'],
+  ['Скручивания','Пресс'],['Планка, сек','Пресс']];
+// Калистеника: вес в подходе — это дополнительный вес (0 — только свой вес). Статика записывается в секундах.
+const CALI_EX = ['Отжимания', 'Отжимания узким хватом', 'Отжимания с ногами на возвышении', 'Отжимания на кулаках', 'Пайк-отжимания',
+  'Отжимания в стойке у стены', 'Псевдопланш-отжимания', 'Подтягивания обратным хватом', 'Подтягивания широким хватом',
+  'Австралийские подтягивания', 'Подтягивания к груди', 'Выход силой на перекладине', 'Выход силой на кольцах',
+  'Отжимания на кольцах', 'Приседания без веса', 'Пистолетик', 'Болгарские сплит-приседания', 'Выпрыгивания',
+  'Нордические сгибания', 'Подъём ног в висе', 'Подъём ног к перекладине', 'Берпи', 'Скалолаз',
+  'Уголок (L-sit), сек', 'Лодочка, сек', 'Стойка на руках у стены, сек', 'Стойка на руках, сек', 'Вис на перекладине, сек',
+  'Передний вис, сек', 'Задний вис, сек', 'Планш (тук или стрэдл), сек', 'Флажок, сек'];
+const BW_NAMES = ['Отжимания на брусьях', 'Подтягивания', 'Скручивания', 'Планка, сек'];
+function addLibrary(list){ const have = new Set(list.map(x => x.name.toLowerCase()));
+  for (const n of CALI_EX) if (!have.has(n.toLowerCase())) list.push({ id: uid(), name: n, group: 'Калистеника', bw: true });
+  for (const x of list) if (BW_NAMES.includes(x.name)) x.bw = true; }
+/* ---------- состояние ---------- */
+const APP_VERSION = '0.1';
+function freshState(){ return { v: 1, lib: 2,
+  settings: { trainer: '', price: '', cur: '₽', dur: '60', rest: '90', noshow: '1' },
+  exercises: (() => { const l = DEFAULT_EX.map(([name, group]) => ({ id: uid(), name, group })); addLibrary(l); return l; })(),
+  clients: [], sessions: [], workouts: [], programs: [], passes: [], payments: [], timer: null, lastExport: '' }; }
+function migrate(s){ const f = freshState(); for (const k of Object.keys(f)) if (s[k] == null) s[k] = f[k]; s.settings = { ...f.settings, ...s.settings }; }
+let S, TAB = 'schedule', VIEW = [], SD = today(), CTAB = 'program', FM = 0, PEX = null, CQ = '', CARCH = false, saveT;
+function save(){ clearTimeout(saveT); saveT = setTimeout(persist, 250); }
+async function persist(){ clearTimeout(saveT);
+  try { if (store.db) await store.set('state', S); else localStorage.setItem('trener', JSON.stringify(S)); }
+  catch (e) { toast('Не удалось сохранить данные: ' + (e && e.message || e)); } }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') persist(); });
+const touch = o => { o.upd = Date.now(); return o; };
+
+/* ---------- справочники и деньги ---------- */
+const exById = id => S.exercises.find(x => x.id === id);
+const e1rm = (w, r) => r <= 1 ? w : w * (1 + r / 30);
+const clientById = id => S.clients.find(c => c.id === id);
+const initials = n => (n || '?').split(/\s+/).filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
+const money = n => `${fmtNum(n)} ${S.settings.cur || '₽'}`;
+const addMin = (t, m) => { const [h, mm] = t.split(':').map(Number), x = h * 60 + mm + Number(m || 0); return `${pad(Math.floor(x / 60) % 24)}:${pad(x % 60)}`; };
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const counted = s => s.status === 'done' || (s.status === 'noshow' && S.settings.noshow !== '0');
+const sessPrice = c => { const v = num(c && c.price) > 0 ? num(c.price) : num(S.settings.price); return v > 0 ? v : 0; };
+const passUsed = p => S.sessions.filter(s => s.passId === p.id && counted(s)).length;
+function passesOf(cid){ return S.passes.filter(p => p.clientId === cid).sort((a, b) => a.date.localeCompare(b.date)); }
+function activePass(cid, date){ return passesOf(cid).find(p => passUsed(p) < p.total && (!p.expires || p.expires >= (date || today()))); }
+function setStatus(s, st){
+  const was = counted(s); s.status = st; const now = counted(s);
+  if (now && !was) { const p = activePass(s.clientId, s.date);
+    if (p) { s.passId = p.id; s.single = false; } else { s.passId = null; s.single = true; s.price = sessPrice(clientById(s.clientId)); } }
+  if (!now && was) { s.passId = null; s.single = false; s.price = 0; }
+  touch(s);
+}
+function ledger(cid){ const rows = [];
+  for (const p of S.passes) if (p.clientId === cid) rows.push({ date: p.date, amt: -p.price, txt: `Абонемент, ${p.total} ${plural(p.total, 'занятие', 'занятия', 'занятий')}` });
+  for (const s of S.sessions) if (s.clientId === cid && s.single && counted(s) && s.price > 0) rows.push({ date: s.date, amt: -s.price, txt: s.status === 'noshow' ? 'Разовое, неявка' : 'Разовое занятие' });
+  for (const p of S.payments) if (p.clientId === cid) rows.push({ date: p.date, amt: p.amount, txt: `Оплата${p.method ? ', ' + p.method : ''}${p.note ? ', ' + p.note : ''}`, pay: p });
+  return rows.sort((a, b) => b.date.localeCompare(a.date)); }
+const balance = cid => ledger(cid).reduce((a, r) => a + r.amt, 0);
+function passLine(cid){ const p = activePass(cid); if (!p) return '';
+  const left = p.total - passUsed(p); return `осталось ${left} из ${p.total}${p.expires ? ` до ${shortDay(p.expires)}` : ''}`; }
+const clientSessions = cid => S.sessions.filter(s => s.clientId === cid);
+function nextSession(cid){ const t = today(), nowM = new Date().getHours() * 60 + new Date().getMinutes();
+  return clientSessions(cid).filter(s => s.status === 'planned' && (s.date > t || (s.date === t && toMin(s.time) + Number(s.dur) >= nowM)))
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))[0]; }
+const sessLabel = s => `${fmtDay(s.date).toLowerCase()} в ${s.time}`;
+const clientWorkouts = cid => S.workouts.filter(w => w.clientId === cid).sort((a, b) => (b.date + (b.startedAt || 0)).localeCompare(a.date + (a.startedAt || 0)));
+
+/* ---------- навигация ---------- */
+const go = v => { VIEW.push(v); render(); scrollTo(0, 0); };
+const back = () => { VIEW.pop(); render(); };
+function render(){
+  const v = VIEW.at(-1);
+  document.body.dataset.screen = v ? v.t : TAB;
+  document.querySelectorAll('#nav button').forEach(b => b.setAttribute('aria-current', !v && b.dataset.tab === TAB ? 'page' : 'false'));
+  let title = '', main = '';
+  if (v) { const c = v.t === 'client' ? clientById(v.id) : v.t === 'workout' ? clientById((S.workouts.find(w => w.id === v.id) || {}).clientId) : null;
+    const p = v.t === 'program' ? S.programs.find(x => x.id === v.id) : null;
+    title = c ? c.name : p ? p.name : '';
+    $('#top').innerHTML = `<button class="iconbtn" data-act="back" aria-label="Назад">‹</button><h1 class="vtitle">${esc(title)}</h1><span style="width:40px"></span>`;
+    main = v.t === 'client' ? viewClient(v.id) : v.t === 'workout' ? viewWorkout(v.id) : viewProgram(v.id);
+  } else {
+    $('#top').innerHTML = TAB === 'schedule' ? scheduleHeader() : `<h1 class="title">${({ clients: 'Клиенты', programs: 'Программы', more: 'Ещё' })[TAB]}</h1>`;
+    main = ({ schedule: viewSchedule, clients: viewClients, programs: viewPrograms, more: viewMore })[TAB]();
+  }
+  $('#main').innerHTML = main;
+  if (v && v.t === 'client' && CTAB === 'progress') requestAnimationFrame(drawClientProgress);
+  tick();
+}
+/* ---------- шторка снизу ---------- */
+// Фон под шторкой фиксируется, чтобы не прокручивался. Шторку можно смахнуть вниз.
+let lockY = 0;
+function lockPage(){ if (document.body.classList.contains('locked')) return; lockY = window.scrollY;
+  document.body.style.top = -lockY + 'px'; document.body.classList.add('locked'); }
+function unlockPage(){ if (!document.body.classList.contains('locked')) return;
+  document.body.classList.remove('locked'); document.body.style.top = ''; window.scrollTo(0, lockY); }
+function sheet(html, opt = {}){
+  document.querySelectorAll('.sheet-wrap').forEach(w => w.remove());
+  const w = document.createElement('div'); w.className = 'sheet-wrap';
+  w.innerHTML = `<div class="sheet" role="dialog" aria-modal="true"><div class="grab" aria-hidden="true"></div>${html}</div>`;
+  const sh = w.querySelector('.sheet');
+  w.addEventListener('click', e => { if (e.target === w) dismissSheet(); });
+  // фон: никаких жестов
+  w.addEventListener('touchmove', e => { if (!sh.contains(e.target)) e.preventDefault(); }, { passive: false });
+  // смахивание вниз
+  let y0 = 0, t0 = 0, dy = 0, drag = false, maybe = false;
+  sh.addEventListener('touchstart', e => { if (e.touches.length !== 1) return; y0 = e.touches[0].clientY; t0 = Date.now(); dy = 0; drag = false;
+    maybe = sh.scrollTop <= 0 || !!e.target.closest('.grab'); }, { passive: true });
+  sh.addEventListener('touchmove', e => {
+    if (!maybe) return; dy = e.touches[0].clientY - y0;
+    if (!drag) { if (dy > 6) { drag = true; sh.classList.add('dragging'); document.activeElement && document.activeElement.blur && document.activeElement.blur(); }
+      else if (dy < -6) { maybe = false; return; } else return; }
+    e.preventDefault(); sh.style.transform = `translateY(${Math.max(0, dy)}px)`;
+  }, { passive: false });
+  const end = () => { if (!drag) return; drag = false; sh.classList.remove('dragging');
+    const fast = dy > 40 && dy / Math.max(1, Date.now() - t0) > 0.5;
+    if (dy > Math.min(140, sh.offsetHeight * 0.3) || fast) dismissSheet(); else sh.style.transform = ''; };
+  sh.addEventListener('touchend', end); sh.addEventListener('touchcancel', end);
+  lockPage(); if (opt.instant) { sh.style.transition = 'none'; w.style.transition = 'none'; w.classList.add('open'); document.body.appendChild(w); requestAnimationFrame(() => { sh.style.transition = ''; w.style.transition = ''; }); }
+  else { document.body.appendChild(w); requestAnimationFrame(() => w.classList.add('open')); } return sh; }
+function closeSheet(){ document.querySelectorAll('.sheet-wrap').forEach(w => w.remove()); unlockPage(); }
+function dismissSheet(){ const w = document.querySelector('.sheet-wrap'); if (!w) return unlockPage();
+  const sh = w.querySelector('.sheet'); sh.style.transform = 'translateY(100%)'; w.classList.remove('open');
+  setTimeout(() => { if (w.isConnected) { w.remove(); if (!document.querySelector('.sheet-wrap')) unlockPage(); } }, 230); }
+if (window.visualViewport) { const vv = visualViewport;
+  const fit = () => { document.documentElement.style.setProperty('--vvh', vv.height + 'px'); document.documentElement.style.setProperty('--vvt', vv.offsetTop + 'px'); };
+  vv.addEventListener('resize', fit); vv.addEventListener('scroll', fit); fit(); }
+
+const fmtClock = sec => { sec = Math.max(0, Math.round(sec)); return `${Math.floor(sec / 60)}:${pad(sec % 60)}`; };
+const fmtDur = min => min >= 60 ? `${Math.floor(min / 60)} ч ${pad(min % 60)} мин` : `${min} мин`;
+let AC = null; const beeps = {};
+function audio(){ try { if (!AC) AC = new (window.AudioContext || window.webkitAudioContext)(); if (AC.state === 'suspended') AC.resume(); } catch (e) {} return AC; }
+function cancelBeep(key){ for (const o of beeps[key] || []) { try { o.stop(); } catch (e) {} } beeps[key] = []; }
+function scheduleBeep(inSec, key){ cancelBeep(key); const ac = audio(); if (!ac) return; const t0 = ac.currentTime + Math.max(0.05, inSec); beeps[key] = [];
+  for (let i = 0; i < 3; i++) { const o = ac.createOscillator(), g = ac.createGain(), t = t0 + i * 0.3;
+    o.type = 'sine'; o.frequency.value = i === 2 ? 1320 : 880;
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.6, t + 0.02); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.24);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.26); beeps[key].push(o); } }
+/* ---------- тренировка ---------- */
+function restFor(it){ const v = it && it.rest !== undefined && it.rest !== '' && it.rest !== null ? Number(it.rest) : num(S.settings.rest); return v > 0 ? v : 0; }
+function startRest(sec){ if (!(sec > 0)) return; S.timer = { end: Date.now() + sec * 1000, total: sec }; save(); scheduleBeep(sec, 'rest'); tick(); }
+function adjustRest(d){ const t = S.timer; if (!t) return; if (d === 0) { S.timer = null; cancelBeep('rest'); save(); tick(); return; }
+  t.end += d * 1000; t.total = Math.max(5, t.total + d); const left = (t.end - Date.now()) / 1000;
+  if (left <= 0) { S.timer = null; cancelBeep('rest'); } else { t.rang = false; scheduleBeep(left, 'rest'); } save(); tick(); }
+const lastAct = w => Math.max(w.startedAt || 0, ...w.sets.map(s => s.t || 0));
+const isLive = w => !!(w && w.startedAt && !w.finishedAt && Date.now() - lastAct(w) < 4 * 3600e3);
+const liveWorkout = () => S.workouts.find(isLive);
+let tickT = null;
+function tick(){
+  if (!S) return; const bar = $('#restbar'), t = S.timer, lw = liveWorkout();
+  const wc = $('#wclock'), cur = VIEW.at(-1); if (wc && cur && cur.t === 'workout') { const w = S.workouts.find(x => x.id === cur.id); if (isLive(w)) wc.textContent = fmtClock((Date.now() - w.startedAt) / 1000); }
+  if (!t) { bar.hidden = true; document.body.classList.remove('has-timer'); }
+  else { const left = (t.end - Date.now()) / 1000; bar.hidden = false; document.body.classList.add('has-timer');
+    if (left <= 0) { bar.classList.add('done'); bar.querySelector('.rt-label').textContent = 'Отдых окончен, вперёд!'; bar.querySelector('.rt-time').textContent = '0:00'; bar.querySelector('.rt-fill').style.width = '100%';
+      if (!t.rang) { t.rang = true; if (navigator.vibrate) navigator.vibrate([200, 100, 200]); }
+      if (left < -8) { S.timer = null; save(); tick(); return; } }
+    else { bar.classList.remove('done'); bar.querySelector('.rt-label').textContent = 'Отдых'; bar.querySelector('.rt-time').textContent = fmtClock(Math.ceil(left));
+      bar.querySelector('.rt-fill').style.width = `${Math.min(100, 100 - left / t.total * 100)}%`; } }
+  const need = !!t || !!lw; if (need && !tickT) tickT = setInterval(tick, 250); if (!need && tickT) { clearInterval(tickT); tickT = null; }
+}
+let wakeL = null;
+async function requestWake(){ try { if ('wakeLock' in navigator && !wakeL && document.visibilityState === 'visible') { wakeL = await navigator.wakeLock.request('screen'); wakeL.addEventListener('release', () => { wakeL = null; }); } } catch (e) {} }
+function releaseWake(){ try { if (wakeL) wakeL.release(); } catch (e) {} wakeL = null; }
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S) { if (liveWorkout()) requestWake(); tick(); } });
+
+function lastSetsOf(cid, exId, w){ const key = x => x.date + String(x.startedAt || 0).padStart(15, '0');
+  const list = S.workouts.filter(x => x.clientId === cid && x !== w && key(x) < key(w)).sort((a, b) => key(b).localeCompare(key(a)));
+  for (const x of list) { const ss = x.sets.filter(s => s.exId === exId); if (ss.length) return { date: x.date, sets: ss }; } return null; }
+const wkPlan = w => { const items = (w.plan || []).slice(); for (const s of w.sets) if (!items.some(i => i.exId === s.exId)) items.push({ exId: s.exId }); return items; };
+function nextDay(c){ const days = (c.program && c.program.days) || []; if (!days.length) return null;
+  const last = clientWorkouts(c.id).find(w => w.dayId && days.some(d => d.id === w.dayId));
+  if (!last) return days[0]; const i = days.findIndex(d => d.id === last.dayId); return days[(i + 1) % days.length]; }
+function startSession(sid){
+  const s = S.sessions.find(x => x.id === sid); if (!s) return;
+  const w = s.workoutId && S.workouts.find(x => x.id === s.workoutId); if (w) { VIEW = []; go({ t: 'workout', id: w.id }); return; }
+  chooseDay(s.clientId, day => createWorkout(s.clientId, s, day));
+}
+function startClientWorkout(cid){
+  const lw = S.workouts.find(w => w.clientId === cid && isLive(w)); if (lw) { go({ t: 'workout', id: lw.id }); return; }
+  const t = today(), s = S.sessions.filter(x => x.clientId === cid && x.date === t && x.status === 'planned' && !x.workoutId)[0];
+  if (s) { startSession(s.id); return; }
+  chooseDay(cid, day => { const now = new Date(), time = `${pad(now.getHours())}:${pad(Math.floor(now.getMinutes() / 5) * 5)}`;
+    const ns = touch({ id: uid(), clientId: cid, date: t, time, dur: Number(S.settings.dur) || 60, status: 'planned', seriesId: null }); S.sessions.push(ns); createWorkout(cid, ns, day); });
+}
+function chooseDay(cid, cb){
+  const c = clientById(cid), days = (c.program && c.program.days) || [], nx = nextDay(c);
+  if (!days.length) { cb(null); return; }
+  const sh = sheet(`<h2>Что делаем?</h2><p class="prev">${esc(c.name)}</p>
+    ${days.map(d => `<button class="row" data-s="d" data-id="${d.id}"><span class="nm">${esc(d.name)}<small>${esc(itemsSummary(d.items))}</small></span><span class="meta">${d === nx ? 'по очереди' : ''}</span></button>`).join('')}
+    <button class="row" data-s="free"><span class="nm">Свободная тренировка<small>Упражнения добавишь по ходу</small></span><span class="meta"></span></button>`);
+  sh.onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; closeSheet(); cb(b.dataset.s === 'free' ? null : days.find(d => d.id === b.dataset.id)); };
+}
+function createWorkout(cid, s, day){
+  const w = touch({ id: uid(), clientId: cid, sessionId: s ? s.id : null, date: s ? s.date : today(), dayId: day ? day.id : null, dayName: day ? day.name : 'Свободная тренировка',
+    plan: day ? day.items.map(i => ({ ...i })) : [], sets: [], notes: {}, note: '', startedAt: Date.now() });
+  S.workouts.push(w); if (s) { s.workoutId = w.id; touch(s); }
+  audio(); requestWake(); save(); VIEW = []; go({ t: 'workout', id: w.id }); toast(`Поехали: ${w.dayName}`);
+}
+function viewWorkout(id){
+  const w = S.workouts.find(x => x.id === id); if (!w) return '<p class="empty">Тренировка не найдена</p>';
+  const c = clientById(w.clientId) || {}, live = isLive(w), items = wkPlan(w);
+  const vol = w.sets.reduce((a, s) => a + s.w * s.r, 0), mins = w.finishedAt ? Math.max(1, Math.round((w.finishedAt - w.startedAt) / 60000)) : 0;
+  let h = `<div class="board"><div class="cap">${live ? 'Идёт тренировка' : fmtDay(w.date)}: ${esc(w.dayName)}</div>
+    <div class="big"${live ? ' id="wclock"' : ''}>${live ? fmtClock((Date.now() - w.startedAt) / 1000) : mins ? fmtDur(mins) : '—'}</div>
+    <div class="stats"><div class="stat"><b>${w.sets.length}</b><span>${plural(w.sets.length, 'подход', 'подхода', 'подходов')}</span></div><div class="stat"><b>${fmtNum(vol)}</b><span>кг объём</span></div><div class="stat"><b>${items.length}</b><span>упр.</span></div></div></div>`;
+  if (c.limits) h += `<div class="alert">⚠ ${esc(c.limits)}</div>`;
+  for (const it of items) {
+    const ex = exById(it.exId); if (!ex) continue; const id2 = it.exId;
+    const done = w.sets.filter(s => s.exId === id2), prev = lastSetsOf(w.clientId, id2, w), timed = isTimed(ex), rest = restFor(it);
+    const ps = prev && (prev.sets[done.length] || prev.sets.at(-1));
+    let wv = done.length ? done.at(-1).w : ps ? ps.w : ''; if (ex.bw && !(wv > 0)) wv = '';
+    const goal = [it.sets ? (it.target ? `${it.sets} × ${it.target}${timed ? ' с' : ''}` : `${it.sets} ${plural(it.sets, 'подход', 'подхода', 'подходов')}`) : it.target || '', rest ? `отдых ${fmtClock(rest)}` : ''].filter(Boolean).join(', ');
+    const note = w.notes && w.notes[id2];
+    h += `<section class="ex${it.sets && done.length >= it.sets ? ' complete' : ''}" id="ex-${id2}"><div class="ex-head"><h3>${esc(ex.name)}</h3><span class="ex-tools">
+        <button class="iconbtn sm" data-act="exnote" data-ex="${id2}" aria-label="Заметка">✎</button>${it.sets ? `<span class="count">${done.length}/${it.sets}</span>` : done.length ? '' : `<button class="iconbtn sm" data-act="rmex" data-ex="${id2}" aria-label="Убрать">×</button>`}</span></div>
+      ${goal ? `<p class="goal">План: ${esc(goal)}</p>` : ''}
+      <p class="prev">${prev ? `Прошлый раз, ${shortDay(prev.date)}: ${prev.sets.map(setTxt).join(', ')}` : 'Первый раз в этом упражнении'}</p>
+      ${note ? `<p class="note">${esc(note)}</p>` : ''}
+      ${done.length ? `<div class="sets">${done.map(s => `<button class="set" data-act="delset" data-id="${s.id}" aria-label="Подход ${setTxt(s)}. Нажми, чтобы удалить">${setHtml(s)}</button>`).join('')}</div>` : ''}
+      <div class="logrow"><input id="iw-${id2}" inputmode="decimal" value="${wv === '' ? '' : fmtW(wv)}" placeholder="${ex.bw ? '+кг' : 'кг'}" aria-label="${ex.bw ? 'Доп. вес, кг' : 'Вес, кг'}"><span class="x">×</span>
+        <input id="ir-${id2}" data-log="${id2}" inputmode="numeric" placeholder="${ps ? ps.r : timed ? 'сек' : 'повт.'}" aria-label="${timed ? 'Секунды' : 'Повторы'}">
+        ${timed ? `<button class="iconbtn sm" data-act="stopwatch" data-ex="${id2}" aria-label="Секундомер">⏱</button>` : ''}<button class="logbtn" data-act="logset" data-ex="${id2}" aria-label="Записать подход">✓</button></div></section>`;
+  }
+  h += `<button class="btn ghost" data-act="pickex">Добавить упражнение</button>
+    <div class="card" style="margin-top:12px"><h2>Заметка к тренировке</h2><textarea id="wnote" rows="3" placeholder="Самочувствие, что получилось, что поменять в следующий раз">${esc(w.note || '')}</textarea></div>`;
+  h += live ? `<button class="btn accent" data-act="finish">Завершить тренировку</button>` : `<button class="btn accent" data-act="report" data-id="${w.id}">Отчёт клиенту</button><button class="btn ghost danger" data-act="delwk" data-id="${w.id}">Удалить тренировку</button>`;
+  return h;
+}
+const curWorkout = () => { const v = VIEW.at(-1); return v && v.t === 'workout' ? S.workouts.find(x => x.id === v.id) : null; };
+function logSet(exId){
+  const ex = exById(exId), wInp = $('#iw-' + exId), rInp = $('#ir-' + exId); if (!ex || !rInp) return;
+  const w = num(wInp.value || 0); let r = Math.round(num(rInp.value)), auto = false;
+  if (!(r > 0)) { const ph = num(rInp.placeholder); if (ph > 0) { r = Math.round(ph); auto = true; } }
+  if (!(w >= 0)) { toast('Проверь вес'); return; }
+  if (!(r > 0)) { toast(isTimed(ex) ? 'Впиши секунды или включи секундомер' : 'Впиши количество повторов'); rInp.focus(); return; }
+  addSet(exId, w, r, auto);
+}
+function addSet(exId, wt, r, auto){
+  const w = curWorkout(); if (!w) return; audio();
+  const s = { id: uid(), exId, w: wt, r, t: Date.now() }; w.sets.push(s); touch(w);
+  if (!w.plan.some(i => i.exId === exId)) w.plan.push({ exId });
+  const it = w.plan.find(i => i.exId === exId);
+  const allDone = w.plan.some(i => i.sets) && w.plan.every(i => !i.sets || w.sets.filter(x => x.exId === i.exId).length >= i.sets);
+  save();
+  if (isLive(w)) { if (allDone) { S.timer = null; cancelBeep('rest'); toast('Все подходы по плану сделаны!'); } else startRest(restFor(it)); }
+  render(); if (!allDone) toast(`${auto ? 'Как в прошлый раз: ' : 'Записано: '}${setTxt(s)}`);
+}
+function openStopwatch(exId){
+  const w = curWorkout(), ex = exById(exId), it = wkPlan(w).find(i => i.exId === exId) || {};
+  const nums = String(it.target || '').match(/\d+/g), target = nums ? Number(nums.at(-1)) : 0;
+  const wInp = $('#iw-' + exId), wt = num(wInp && wInp.value || 0) || 0;
+  let start = 0, acc = 0, run = false, iv = null;
+  const sh = sheet(`<h2>${esc(ex.name)}</h2><p class="prev">${target ? `Цель: ${target} с, на цели прозвучит сигнал` : 'Секундомер'}${wt > 0 ? `, доп. вес ${fmtW(wt)} кг` : ''}</p>
+    <div class="sw-time" id="swt">0:00</div>
+    <button class="btn accent" data-s="go">Старт</button><button class="btn" data-s="save" disabled>Записать</button><button class="btn ghost" data-s="reset" hidden>Сбросить</button>`);
+  const el = sh.querySelector('#swt'), gob = sh.querySelector('[data-s=go]'), sv = sh.querySelector('[data-s=save]'), rs = sh.querySelector('[data-s=reset]');
+  const secs = () => (acc + (run ? Date.now() - start : 0)) / 1000;
+  const upd = () => { if (!sh.isConnected) { clearInterval(iv); cancelBeep('sw'); return; } el.textContent = fmtClock(Math.floor(secs())); };
+  const stop = () => { if (!run) return; acc += Date.now() - start; run = false; clearInterval(iv); cancelBeep('sw'); gob.textContent = 'Продолжить'; upd(); };
+  sh.onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'go') { if (!run) { audio(); start = Date.now(); run = true; gob.textContent = 'Стоп'; sv.disabled = false; rs.hidden = false; iv = setInterval(upd, 200);
+        if (target && target - acc / 1000 > 0) scheduleBeep(target - acc / 1000, 'sw'); } else stop(); }
+    else if (s === 'reset') { stop(); acc = 0; gob.textContent = 'Старт'; sv.disabled = true; rs.hidden = true; upd(); }
+    else if (s === 'save') { stop(); const r = Math.floor(secs()); if (!(r > 0)) { toast('Меньше секунды, запускай заново'); return; } closeSheet(); addSet(exId, wt, r, false); } };
+}
+function openExNote(exId){
+  const w = curWorkout(), ex = exById(exId); if (!w.notes) w.notes = {};
+  const sh = sheet(`<h2>Заметка</h2><p class="prev">${esc(ex.name)}</p><textarea id="exn" rows="4" placeholder="Например, техника поплыла на последнем подходе, в следующий раз оставить вес">${esc(w.notes[exId] || '')}</textarea>
+    <button class="btn accent" data-s="save" style="margin-top:12px">Сохранить</button>`);
+  sh.onclick = e => { if (!e.target.closest('[data-s=save]')) return; const v = sh.querySelector('#exn').value.trim();
+    if (v) w.notes[exId] = v; else delete w.notes[exId]; touch(w); save(); closeSheet(); render(); };
+}
+function finishWorkout(){
+  const w = curWorkout(); if (!w) return;
+  if (!w.sets.length && !confirm('Подходов не записано. Всё равно завершить?')) return;
+  w.finishedAt = Date.now(); touch(w); S.timer = null; cancelBeep('rest'); releaseWake();
+  const s = w.sessionId && S.sessions.find(x => x.id === w.sessionId); if (s && s.status === 'planned') setStatus(s, 'done');
+  save(); render(); scrollTo(0, 0); openReport(w.id, true);
+}
+function buildReport(w){
+  const c = clientById(w.clientId) || { name: '' }, first = c.name.split(/\s+/)[0];
+  const mins = w.finishedAt ? Math.max(1, Math.round((w.finishedAt - w.startedAt) / 60000)) : 0;
+  const lines = [`${first}, отчёт о тренировке ${shortDay(w.date)}${w.dayName && w.dayName !== 'Свободная тренировка' ? ` (${w.dayName})` : ''} ✅`];
+  if (mins) lines.push(`Длительность: ${fmtDur(mins)}`); lines.push('');
+  for (const it of wkPlan(w)) { const ss = w.sets.filter(s => s.exId === it.exId), ex = exById(it.exId); if (!ss.length || !ex) continue;
+    const parts = []; for (const s of ss) { const t = setTxt(s), last = parts.at(-1); if (last && last.t === t) last.n++; else parts.push({ t, n: 1 }); }
+    lines.push(`• ${ex.name}: ${parts.map(p => p.n > 1 ? `${p.t} ×${p.n}` : p.t).join(', ')}`); }
+  const recs = []; for (const id of new Set(w.sets.map(s => s.exId))) { const score = s => s.w > 0 ? 1000 + e1rm(s.w, s.r) : s.r;
+    let prior = 0; for (const x of S.workouts) if (x.clientId === w.clientId && x !== w && x.date <= w.date) for (const s of x.sets) if (s.exId === id) prior = Math.max(prior, score(s));
+    const best = w.sets.filter(s => s.exId === id).sort((a, b) => score(b) - score(a))[0]; if (prior > 0 && score(best) > prior) recs.push(`${exById(id).name} ${setTxt(best)}`); }
+  if (recs.length) lines.push('', `🏆 Новые рекорды: ${recs.join('; ')}`);
+  if (w.note) lines.push('', `Комментарий тренера: ${w.note}`);
+  const nx = nextSession(w.clientId); if (nx) lines.push('', `Следующая тренировка: ${sessLabel(nx)}`);
+  const pl = passLine(w.clientId); if (pl) lines.push(`Абонемент: ${pl}`);
+  const bal = balance(w.clientId); if (bal < 0) lines.push(`К оплате: ${money(-bal)}`);
+  if (S.settings.trainer) lines.push('', `Тренер: ${S.settings.trainer}`);
+  return lines.join('\n');
+}
+function openReport(wid, justFinished){
+  const w = S.workouts.find(x => x.id === wid); if (!w) return; const text = buildReport(w);
+  const sh = sheet(`<h2>${justFinished ? 'Тренировка завершена' : 'Отчёт клиенту'}</h2><p class="prev">Текст можно поправить перед отправкой</p>
+    <textarea id="rep" rows="12">${esc(text)}</textarea>
+    <button class="btn accent" data-s="share" style="margin-top:12px">Отправить</button><button class="btn ghost" data-s="copy">Скопировать</button><button class="btn ghost" data-s="done">Готово</button>`);
+  sh.onclick = async e => { const b = e.target.closest('[data-s]'); if (!b) return; const v = sh.querySelector('#rep').value;
+    if (b.dataset.s === 'share') { try { if (navigator.share) await navigator.share({ text: v }); else { await navigator.clipboard.writeText(v); toast('Скопировано, вставь в мессенджер'); } } catch (err) { if (err.name !== 'AbortError') toast('Не получилось, попробуй «Скопировать»'); } }
+    else if (b.dataset.s === 'copy') { try { await navigator.clipboard.writeText(v); toast('Скопировано'); } catch (err) { sh.querySelector('#rep').select(); toast('Выдели текст и скопируй'); } }
+    else dismissSheet(); };
+}
+const MUSCLES = ['Грудь', 'Спина', 'Ноги', 'Ягодицы', 'Плечи', 'Руки', 'Пресс', 'Всё тело'];
+const EQUIP = ['Штанга', 'Гантели', 'Гири', 'Тренажёр', 'Блок / кроссовер', 'Скамья', 'Резинка', 'Турник', 'Брусья', 'Кольца', 'Петли TRX', 'Скакалка'];
+const NO_EQUIP = 'Без оборудования';
+const exSection = ex => ex.section || (ex.group === 'Калистеника' || ex.bw ? 'cali' : 'gym');
+let PF = 'all';
+function openExPicker(onPick, onBack){
+  const pick = onPick || (id => { const wk = curWorkout(); if (!wk) return; if (!wk.plan.some(i => i.exId === id)) wk.plan.push({ exId: id }); touch(wk); save(); closeSheet(); render();
+    const el = document.getElementById('ex-' + id); if (el) el.scrollIntoView({ block: 'center' }); });
+  const again = () => openExPicker(onPick, onBack);
+  const filters = [['all', 'Все'], ['gym', 'Зал'], ['cali', 'Калистеника'], ['mine', 'Мои']];
+  const sh = sheet(`<h2>Упражнение</h2><input id="exq" placeholder="Поиск или новое название" autocomplete="off">
+    <div class="actions" id="exf">${filters.map(([k, l]) => `<button class="chip" data-s="f" data-f="${k}" aria-pressed="${PF === k}">${l}</button>`).join('')}</div>
+    <div id="exlist" style="margin-top:6px"></div>
+    <button class="btn ghost" data-s="create" style="margin-top:10px">Своё упражнение</button>
+    ${onBack ? '<button class="btn ghost" data-s="back">Назад</button>' : ''}`);
+  const q = sh.querySelector('#exq'), list = sh.querySelector('#exlist'), last = {};
+  for (const w of S.workouts) for (const s of w.sets) if (!last[s.exId] || last[s.exId] < w.date) last[s.exId] = w.date;
+  const draw = () => { const v = q.value.trim().toLowerCase();
+    const xs = S.exercises.filter(x => !x.hidden && x.name.toLowerCase().includes(v)
+        && (PF === 'all' || (PF === 'mine' ? x.custom : exSection(x) === PF)))
+      .sort((a, b) => (last[b.id] || '').localeCompare(last[a.id] || '') || a.name.localeCompare(b.name, 'ru'));
+    const exact = S.exercises.some(x => !x.hidden && x.name.toLowerCase() === v);
+    list.innerHTML = (v && !exact ? `<button class="row" data-s="new"><span class="nm">Создать «${esc(q.value.trim())}»</span><span class="meta">+</span></button>` : '')
+      + xs.map(x => `<button class="row" data-s="ex" data-id="${x.id}"><span class="nm">${esc(x.name)}${x.equip && x.equip.length ? `<small>${esc(x.equip.join(', '))}</small>` : ''}</span><span class="meta">${esc(x.group || '')}</span></button>`).join('')
+      || `<p class="empty">${PF === 'mine' && !v ? 'Своих упражнений пока нет' : 'Ничего не нашлось'}</p>`; };
+  q.oninput = draw; draw();
+  sh.onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'back') return onBack();
+    if (s === 'f') { PF = b.dataset.f; sh.querySelectorAll('#exf .chip').forEach(c => c.setAttribute('aria-pressed', c === b)); draw(); }
+    else if (s === 'new' || s === 'create') openExEditor(null, s === 'new' ? q.value.trim() : '', pick, again);
+    else if (s === 'ex') pick(b.dataset.id); };
+}
+function openExEditor(ex, name, onSaved, onBack){
+  const isNew = !ex, used = ex ? S.workouts.some(w => w.sets.some(s => s.exId === ex.id)) : false;
+  const d = ex ? { name: ex.name, section: exSection(ex), timed: isTimed(ex), group: ex.group === 'Калистеника' ? '' : ex.group || '', equip: (ex.equip || []).slice() }
+    : { name: (name || '').replace(/,\s*сек$/, ''), section: PF === 'cali' ? 'cali' : 'gym', timed: /,\s*сек$/.test(name || ''), group: '', equip: [] };
+  const seg = (key, opts) => `<div class="seg" data-k="${key}">${opts.map(([v, l]) => `<button class="chip" data-s="seg" data-k="${key}" data-v="${v}" aria-pressed="${String(d[key]) === v}">${l}</button>`).join('')}</div>`;
+  const sh = sheet(`<h2>${isNew ? 'Своё упражнение' : 'Упражнение'}</h2>
+    <div class="field"><label for="en">Название</label><input id="en" value="${esc(d.name)}" placeholder="Например, тяга Т-грифа"></div>
+    <div class="field"><label>Раздел</label>${seg('section', [['gym', 'Зал (железо)'], ['cali', 'Калистеника']])}
+      <span class="small" id="secHint"></span></div>
+    <div class="field"><label>Тип</label>${seg('timed', [['false', 'Динамика: повторы'], ['true', 'Статика: секунды']])}</div>
+    <div class="field"><label>Группа мышц</label><div class="actions" style="margin-top:0">${MUSCLES.map(m => `<button class="chip" data-s="mus" data-v="${m}" aria-pressed="${d.group === m}">${m}</button>`).join('')}</div></div>
+    <div class="field"><label>Инвентарь</label><div class="actions" style="margin-top:0">
+      <button class="chip" data-s="eq" data-v="${NO_EQUIP}" aria-pressed="${d.equip.includes(NO_EQUIP)}">${NO_EQUIP}</button>
+      ${EQUIP.map(m => `<button class="chip" data-s="eq" data-v="${m}" aria-pressed="${d.equip.includes(m)}">${m}</button>`).join('')}</div>
+      <div class="inline" style="margin-top:8px"><input id="eqo" placeholder="Другое, например, ролик для пресса"><button class="btn ghost" data-s="eqadd" style="width:auto;padding:12px 16px">Добавить</button></div>
+      <div class="actions" id="eqx">${d.equip.filter(x => x !== NO_EQUIP && !EQUIP.includes(x)).map(m => `<button class="chip" data-s="eq" data-v="${esc(m)}" aria-pressed="true">${esc(m)}</button>`).join('')}</div></div>
+    <button class="btn accent" data-s="save">${isNew ? 'Создать упражнение' : 'Сохранить'}</button>
+    ${onBack ? '<button class="btn ghost" data-s="back">Назад</button>' : ''}
+    ${!isNew && ex.custom ? `<button class="btn ghost danger" data-s="del">${used ? 'Убрать из списка' : 'Удалить упражнение'}</button>` : ''}`);
+  const hint = () => { sh.querySelector('#secHint').textContent = d.section === 'cali'
+    ? 'Вес в подходе будет дополнительным: 0 — только свой вес, +10 — с отягощением.' : 'Вес в подходе — рабочий вес снаряда.'; };
+  hint();
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s, v = b.dataset.v;
+    if (s === 'seg') { d[b.dataset.k] = b.dataset.k === 'timed' ? v === 'true' : v; sh.querySelectorAll(`.seg[data-k="${b.dataset.k}"] .chip`).forEach(c => c.setAttribute('aria-pressed', c === b)); hint(); }
+    else if (s === 'mus') { d.group = d.group === v ? '' : v; sh.querySelectorAll('[data-s="mus"]').forEach(c => c.setAttribute('aria-pressed', c.dataset.v === d.group)); }
+    else if (s === 'eq') { const on = !d.equip.includes(v);
+      if (v === NO_EQUIP) d.equip = on ? [NO_EQUIP] : [];
+      else { d.equip = d.equip.filter(x => x !== NO_EQUIP && x !== v); if (on) d.equip.push(v); }
+      sh.querySelectorAll('[data-s="eq"]').forEach(c => c.setAttribute('aria-pressed', d.equip.includes(c.dataset.v))); }
+    else if (s === 'eqadd') { const inp = sh.querySelector('#eqo'), val = inp.value.trim(); if (!val) return;
+      d.equip = d.equip.filter(x => x !== NO_EQUIP); if (!d.equip.includes(val)) d.equip.push(val); inp.value = '';
+      sh.querySelector('#eqx').insertAdjacentHTML('beforeend', `<button class="chip" data-s="eq" data-v="${esc(val)}" aria-pressed="true">${esc(val)}</button>`);
+      sh.querySelectorAll('[data-s="eq"]').forEach(c => c.setAttribute('aria-pressed', d.equip.includes(c.dataset.v))); }
+    else if (s === 'back') onBack();
+    else if (s === 'save') { const nm = sh.querySelector('#en').value.trim();
+      if (!nm) { toast('Напиши название'); sh.querySelector('#en').focus(); return; }
+      if (S.exercises.some(x => !x.hidden && x !== ex && x.name.toLowerCase() === nm.toLowerCase())) { toast('Такое упражнение уже есть'); return; }
+      const fields = { name: nm, section: d.section, bw: d.section === 'cali', timed: d.timed, group: d.group || (d.section === 'cali' ? 'Калистеника' : ''), equip: d.equip };
+      let id;
+      if (ex) { Object.assign(ex, fields); id = ex.id; } else { id = uid(); S.exercises.push({ id, custom: true, ...fields }); }
+      save(); toast(isNew ? 'Упражнение создано' : 'Сохранено');
+      if (onSaved) onSaved(id); else { dismissSheet(); render(); } }
+    else if (s === 'del') { if (!confirm(used ? `Убрать «${ex.name}» из списка? Записанные подходы и графики сохранятся.` : `Удалить «${ex.name}»?`)) return;
+      if (used) ex.hidden = true; else S.exercises = S.exercises.filter(x => x !== ex);
+      for (const p of [...S.programs, ...S.clients.map(c => c.program).filter(Boolean)]) for (const d of p.days) d.items = d.items.filter(i => i.exId !== ex.id);
+      save(); dismissSheet(); render(); } };
+}
+function openMyExercises(){
+  const mine = S.exercises.filter(x => x.custom && !x.hidden).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const sh = sheet(`<h2>Мои упражнения</h2>
+    ${mine.length ? mine.map(x => `<button class="row" data-s="ed" data-id="${x.id}"><span class="nm">${esc(x.name)}<small>${esc([exSection(x) === 'cali' ? 'Калистеника' : 'Зал', isTimed(x) ? 'статика' : 'динамика', ...(x.equip || [])].join(', '))}</small></span><span class="meta">${esc(x.group === 'Калистеника' ? '' : x.group || '')}</span></button>`).join('')
+      : '<p class="small" style="padding:6px 0 12px">Пока нет своих упражнений. Их можно создать здесь или прямо при выборе упражнения на тренировке.</p>'}
+    <button class="btn accent" data-s="new" style="margin-top:12px">Новое упражнение</button>`);
+  sh.onclick = e => { const b = e.target.closest('[data-s]'); if (!b) return;
+    if (b.dataset.s === 'new') openExEditor(null, '', () => openMyExercises(), openMyExercises);
+    else openExEditor(exById(b.dataset.id), '', () => openMyExercises(), openMyExercises); };
+}
+/* ---------- программы ---------- */
+const REST_OPTS = [['', 'по умолч.'], ['0', 'без таймера'], ['30', '0:30'], ['45', '0:45'], ['60', '1:00'], ['90', '1:30'], ['120', '2:00'], ['150', '2:30'], ['180', '3:00'], ['240', '4:00'], ['300', '5:00']];
+const itemsSummary = items => { const n = items.length, names = items.slice(0, 3).map(i => (exById(i.exId) || {}).name).filter(Boolean);
+  return n ? `${n} ${plural(n, 'упражнение', 'упражнения', 'упражнений')}: ${names.join(', ')}${n > 3 ? '…' : ''}` : 'Пока пусто'; };
+const copyDays = days => days.map(d => ({ id: uid(), name: d.name, items: d.items.map(i => ({ ...i })) }));
+// Редактор одного тренировочного дня. opt: { title, save(day), del() , back() }
+function openDayEditor(draft, opt, keepScroll){
+  const n = draft.items.length;
+  const sh = sheet(`<h2>${esc(opt.title || 'Тренировочный день')}</h2>
+    <div class="field"><label for="tn">Название дня</label><input id="tn" value="${esc(draft.name)}" placeholder="Например, День A: ноги"></div>
+    ${draft.items.map((it, i) => { const ex = exById(it.exId) || { name: '?' }, tm = isTimed(ex); return `<div class="ti" data-i="${i}">
+      <div class="ti-head"><b>${esc(ex.name)}</b><span class="ti-ctl"><button data-s="up" data-i="${i}" aria-label="Выше"${i ? '' : ' disabled'}>↑</button><button data-s="down" data-i="${i}" aria-label="Ниже"${i < n - 1 ? '' : ' disabled'}>↓</button><button data-s="rm" data-i="${i}" aria-label="Убрать">×</button></span></div>
+      <div class="grid3"><label>Подходы<input class="t-sets" inputmode="numeric" value="${it.sets || ''}" placeholder="3"></label>
+      <label>${tm ? 'Секунды' : 'Повторы'}<input class="t-target" value="${esc(it.target || '')}" placeholder="${tm ? '30' : '8–10'}"></label>
+      <label>Отдых<select class="t-rest">${REST_OPTS.map(([v, l]) => `<option value="${v}"${String(it.rest ?? '') === v ? ' selected' : ''}>${l}</option>`).join('')}</select></label></div></div>`; }).join('')}
+    ${n ? '' : '<p class="small" style="margin:4px 0 12px">Добавляй упражнения в том порядке, в каком они идут на тренировке.</p>'}
+    <button class="btn ghost" data-s="add">+ Упражнение</button><button class="btn accent" data-s="save">Сохранить</button>
+    ${opt.del ? '<button class="btn ghost danger" data-s="del">Удалить день</button>' : ''}`, { instant: !!keepScroll });
+  if (keepScroll) sh.scrollTop = keepScroll === 'bottom' ? sh.scrollHeight : keepScroll;
+  const sync = () => { draft.name = sh.querySelector('#tn').value.trim();
+    sh.querySelectorAll('.ti').forEach(el => { const it = draft.items[+el.dataset.i], k = Math.round(num(el.querySelector('.t-sets').value));
+      it.sets = k > 0 ? k : 0; it.target = el.querySelector('.t-target').value.trim(); it.rest = el.querySelector('.t-rest').value; }); };
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b || b.disabled) return; const s = b.dataset.s, i = +b.dataset.i; sync();
+    if (s === 'up' || s === 'down') { const j = s === 'up' ? i - 1 : i + 1; [draft.items[i], draft.items[j]] = [draft.items[j], draft.items[i]]; openDayEditor(draft, opt, sh.scrollTop || 1); }
+    else if (s === 'rm') { draft.items.splice(i, 1); openDayEditor(draft, opt, sh.scrollTop || 1); }
+    else if (s === 'add') openExPicker(id => { if (!draft.items.some(x => x.exId === id)) draft.items.push({ exId: id, sets: 3, target: '', rest: '' }); openDayEditor(draft, opt, 'bottom'); }, () => openDayEditor(draft, opt, 'bottom'));
+    else if (s === 'save') { if (!draft.name) { toast('Назови день'); sh.querySelector('#tn').focus(); return; } if (!draft.items.length) { toast('Добавь хотя бы одно упражнение'); return; }
+      opt.save({ id: draft.id || uid(), name: draft.name, items: draft.items.map(it => ({ exId: it.exId, sets: it.sets || 0, target: it.target || '', rest: it.rest ?? '' })) }); save(); dismissSheet(); render(); toast('Сохранено'); }
+    else if (s === 'del') { if (!confirm(`Удалить «${draft.name || 'день'}»?`)) return; opt.del(); save(); dismissSheet(); render(); } };
+}
+function editDayIn(prog, dayId, title){
+  const d = dayId ? prog.days.find(x => x.id === dayId) : null;
+  openDayEditor(d ? JSON.parse(JSON.stringify(d)) : { id: uid(), name: `День ${'ABCDEFGH'[prog.days.length] || prog.days.length + 1}`, items: [] }, {
+    title, save: day => { const k = prog.days.findIndex(x => x.id === day.id); if (k >= 0) prog.days[k] = day; else prog.days.push(day); touch(prog); },
+    del: d ? () => { prog.days = prog.days.filter(x => x.id !== d.id); touch(prog); } : null });
+}
+function daysHtml(prog, ctx){
+  return prog.days.map(d => `<div class="day"><button class="day-main" data-act="editday" data-ctx="${ctx}" data-day="${d.id}"><b>${esc(d.name)}</b><small>${esc(itemsSummary(d.items))}</small></button>
+    ${ctx === 'client' ? `<button class="chip go" data-act="startday" data-day="${d.id}">Начать</button>` : ''}</div>`).join('')
+    || '<p class="small" style="padding:4px 0 10px">Дней пока нет. Обычно это 2–4 дня, которые идут по кругу: A, B, C.</p>'; }
+function viewPrograms(){
+  let h = S.programs.length ? '' : '<p class="empty">Здесь твоя библиотека программ. Собери программу один раз и назначай её разным клиентам, подгоняя под каждого.</p>';
+  h += S.programs.slice().sort((a, b) => a.name.localeCompare(b.name, 'ru')).map(p => `<button class="pcard" data-act="openprog" data-id="${p.id}"><b>${esc(p.name)}</b><small>${p.days.length} ${plural(p.days.length, 'день', 'дня', 'дней')}${p.days.length ? ': ' + esc(p.days.map(d => d.name).join(', ')) : ''}</small></button>`).join('');
+  return h + '<button class="btn accent" data-act="newprog" style="margin-top:8px">Новая программа</button>';
+}
+function viewProgram(id){
+  const p = S.programs.find(x => x.id === id); if (!p) return '<p class="empty">Программа не найдена</p>';
+  return `<div class="card"><div class="field" style="margin:0"><label for="pname">Название</label><input id="pname" data-prog="${p.id}" value="${esc(p.name)}"></div></div>
+    <div class="card"><h2>Дни</h2>${daysHtml(p, 'prog')}<button class="btn ghost" data-act="addday" data-ctx="prog">+ День</button></div>
+    <button class="btn accent" data-act="assignprog" data-id="${p.id}">Назначить клиенту</button><button class="btn ghost danger" data-act="delprog" data-id="${p.id}">Удалить программу</button>`;
+}
+function pickClient(title, cb){
+  const cl = S.clients.filter(c => !c.archived).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const sh = sheet(`<h2>${esc(title)}</h2>${cl.map(c => `<button class="row" data-id="${c.id}"><span class="nm">${esc(c.name)}<small>${c.program && c.program.days.length ? `сейчас ${c.program.days.length} ${plural(c.program.days.length, 'день', 'дня', 'дней')} в программе` : 'программы нет'}</small></span></button>`).join('') || '<p class="empty">Клиентов пока нет</p>'}`);
+  sh.onclick = e => { const b = e.target.closest('[data-id]'); if (b) cb(b.dataset.id); };
+}
+function assignProgram(pid, cid){
+  const p = S.programs.find(x => x.id === pid), c = clientById(cid); if (!p || !c) return;
+  if (!c.program) c.program = { days: [] };
+  const replace = c.program.days.length ? confirm(`У ${c.name} уже есть программа. Заменить её? «Отмена» — добавить дни к текущей.`) : true;
+  c.program.days = replace ? copyDays(p.days) : [...c.program.days, ...copyDays(p.days)]; c.program.name = p.name; touch(c); save(); closeSheet();
+  VIEW = [{ t: 'client', id: c.id }]; CTAB = 'program'; TAB = 'clients'; render(); toast(`Программа назначена: ${c.name}`);
+}
+/* ---------- расписание ---------- */
+const STATUS = { planned: ['Запланирована', ''], done: ['Проведена', 'ok'], noshow: ['Неявка', 'warn'], cancel: ['Отменена', 'off'] };
+const mondayOf = d => { const [y, m, dd] = d.split('-').map(Number), x = new Date(y, m - 1, dd); x.setDate(dd - (x.getDay() + 6) % 7); return dstr(x); };
+const sessionsOn = d => S.sessions.filter(s => s.date === d).sort((a, b) => a.time.localeCompare(b.time));
+function scheduleHeader(){
+  const mon = mondayOf(SD), [y, m] = SD.split('-').map(Number);
+  return `<div class="datebar"><button class="iconbtn" data-act="week" data-d="-7" aria-label="Предыдущая неделя">‹</button><h1>${['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'][m - 1]}</h1><button class="iconbtn" data-act="week" data-d="7" aria-label="Следующая неделя">›</button></div>${mondayOf(today()) !== mon || SD !== today() ? '<button class="chip" data-act="today">Сегодня</button>' : ''}`;
+}
+function viewSchedule(){
+  const mon = mondayOf(SD), t = today();
+  let h = `<div class="week">${[...Array(7)].map((_, i) => { const d = addDays(mon, i), n = sessionsOn(d).filter(s => s.status !== 'cancel').length, [, , dd] = d.split('-').map(Number);
+    return `<button class="wday${d === SD ? ' sel' : ''}${d === t ? ' now' : ''}" data-act="sday" data-d="${d}"><span>${['пн','вт','ср','чт','пт','сб','вс'][i]}</span><b>${dd}</b><i>${n ? '•'.repeat(Math.min(n, 4)) : ''}</i></button>`; }).join('')}</div>`;
+  const list = sessionsOn(SD), act = list.filter(s => s.status !== 'cancel');
+  h += `<div class="dayhead"><h2>${fmtDay(SD)}</h2><span class="small">${act.length ? `${act.length} ${plural(act.length, 'тренировка', 'тренировки', 'тренировок')}` : ''}</span></div>`;
+  if (!list.length) h += `<p class="empty">${S.clients.length ? 'Свободный день' : 'Добавь первого клиента и запиши его на тренировку. Или загрузи пример, чтобы посмотреть, как всё работает.'}</p>${S.clients.length ? '' : '<button class="btn ghost" data-act="demo" style="margin-bottom:8px">Заполнить примером</button>'}`;
+  for (const s of list) { const c = clientById(s.clientId) || { name: 'Удалённый клиент' }, [stTxt, stCls] = STATUS[s.status], w = s.workoutId && S.workouts.find(x => x.id === s.workoutId);
+    const live = w && !w.finishedAt, pl = s.status === 'planned' ? passLine(s.clientId) : s.single ? `разовое, ${money(s.price)}` : s.passId ? 'по абонементу' : '';
+    h += `<div class="sess ${s.status}"><button class="sess-main" data-act="sess" data-id="${s.id}"><span class="sess-time"><b>${s.time}</b><small>${addMin(s.time, s.dur)}</small></span>
+      <span class="sess-info"><b>${esc(c.name)}</b><small>${[w && w.dayName ? esc(w.dayName) : '', pl].filter(Boolean).join(', ') || '&nbsp;'}</small></span>
+      ${s.status !== 'planned' || live ? `<span class="badge ${live ? 'live' : stCls}">${live ? 'Идёт' : stTxt}</span>` : ''}</button>
+      ${s.status === 'planned' && s.date <= t ? `<button class="chip go" data-act="startsess" data-id="${s.id}">${live ? 'Открыть' : 'Начать'}</button>` : ''}</div>`; }
+  h += `<button class="btn accent" data-act="addsess" style="margin-top:12px">+ Запись</button>`;
+  return h;
+}
+function openSessionEditor(pre = {}){
+  if (!S.clients.filter(c => !c.archived).length) { openClientEditor(null, () => openSessionEditor(pre)); return; }
+  const d = { clientId: pre.clientId || '', date: pre.date || SD, time: pre.time || '10:00', dur: String(pre.dur || S.settings.dur || 60), repeat: false, wds: [], weeks: '12' };
+  const cl = S.clients.filter(c => !c.archived).sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  const sh = sheet(`<h2>Новая запись</h2>
+    <div class="field"><label for="sc">Клиент</label><select id="sc"><option value="">Выбери клиента</option>${cl.map(c => `<option value="${c.id}"${c.id === d.clientId ? ' selected' : ''}>${esc(c.name)}</option>`).join('')}<option value="__new">+ Новый клиент</option></select></div>
+    <div class="grid2"><div class="field"><label for="sdt">Дата</label><input id="sdt" type="date" value="${d.date}"></div>
+    <div class="field"><label for="stm">Время</label><input id="stm" type="time" value="${d.time}" step="300"></div></div>
+    <div class="field"><label for="sdu">Длительность</label><select id="sdu">${[30, 45, 60, 75, 90, 120].map(m => `<option value="${m}"${String(m) === d.dur ? ' selected' : ''}>${m} мин</option>`).join('')}</select></div>
+    <div class="field"><label>Повтор</label><div class="seg"><button class="chip" data-s="rep" data-v="0" aria-pressed="true">Один раз</button><button class="chip" data-s="rep" data-v="1" aria-pressed="false">Каждую неделю</button></div></div>
+    <div id="repbox" hidden><div class="field"><label>Дни недели</label><div class="seg wds">${['пн','вт','ср','чт','пт','сб','вс'].map((n, i) => `<button class="chip" data-s="wd" data-v="${i}" aria-pressed="false">${n}</button>`).join('')}</div></div>
+      <div class="field"><label for="swk">На сколько недель вперёд</label><select id="swk">${[4, 8, 12, 16, 24].map(n => `<option value="${n}"${String(n) === d.weeks ? ' selected' : ''}>${n} ${plural(n, 'неделю', 'недели', 'недель')}</option>`).join('')}</select>
+      <span class="small">Каждую запись потом можно перенести или отменить отдельно.</span></div></div>
+    <button class="btn accent" data-s="save">Записать</button>`);
+  const wdOf = ds => { const [y, m, dd] = ds.split('-').map(Number); return (new Date(y, m - 1, dd).getDay() + 6) % 7; };
+  const paintWd = () => sh.querySelectorAll('[data-s=wd]').forEach(b => b.setAttribute('aria-pressed', d.wds.includes(+b.dataset.v)));
+  sh.querySelector('#sc').onchange = e => { if (e.target.value === '__new') { const keep = { date: sh.querySelector('#sdt').value, time: sh.querySelector('#stm').value, dur: sh.querySelector('#sdu').value };
+    openClientEditor(null, id => openSessionEditor({ ...keep, clientId: id }), () => openSessionEditor(keep)); } };
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'rep') { d.repeat = b.dataset.v === '1'; sh.querySelectorAll('[data-s=rep]').forEach(x => x.setAttribute('aria-pressed', x === b)); sh.querySelector('#repbox').hidden = !d.repeat;
+      if (d.repeat && !d.wds.length) { d.wds = [wdOf(sh.querySelector('#sdt').value || SD)]; paintWd(); } }
+    else if (s === 'wd') { const v = +b.dataset.v; d.wds = d.wds.includes(v) ? d.wds.filter(x => x !== v) : [...d.wds, v]; paintWd(); }
+    else if (s === 'save') {
+      const cid = sh.querySelector('#sc').value, date = sh.querySelector('#sdt').value, time = sh.querySelector('#stm').value, dur = Number(sh.querySelector('#sdu').value);
+      if (!cid || cid === '__new') { toast('Выбери клиента'); return; } if (!date || !time) { toast('Укажи дату и время'); return; }
+      let dates = [date];
+      if (d.repeat) { if (!d.wds.length) { toast('Выбери дни недели'); return; } const mon = mondayOf(date), weeks = Number(sh.querySelector('#swk').value); dates = [];
+        for (let w = 0; w < weeks; w++) for (const wd of d.wds.slice().sort()) { const x = addDays(mon, w * 7 + wd); if (x >= date) dates.push(x); } }
+      const seriesId = d.repeat ? uid() : null; let clash = 0;
+      for (const x of dates) { if (S.sessions.some(o => o.date === x && o.status !== 'cancel' && toMin(o.time) < toMin(time) + dur && toMin(time) < toMin(o.time) + Number(o.dur))) clash++;
+        S.sessions.push(touch({ id: uid(), clientId: cid, date: x, time, dur, status: 'planned', seriesId })); }
+      save(); SD = date; closeSheet(); TAB = 'schedule'; VIEW = []; render();
+      toast(`${dates.length > 1 ? `Создано записей: ${dates.length}` : 'Записано'}${clash ? `. Пересечений по времени: ${clash}` : ''}`); } };
+}
+function openSession(id){
+  const s = S.sessions.find(x => x.id === id); if (!s) return; const c = clientById(s.clientId) || { name: '?' };
+  const w = s.workoutId && S.workouts.find(x => x.id === s.workoutId);
+  const pay = s.single ? `Разовое занятие, ${money(s.price)}` : s.passId ? 'Списано с абонемента' : s.status === 'planned' ? (passLine(s.clientId) ? `Абонемент: ${passLine(s.clientId)}` : `Абонемента нет, разовое: ${money(sessPrice(c))}`) : '';
+  const sh = sheet(`<h2>${esc(c.name)}</h2><p class="prev">${fmtDay(s.date)}, ${s.time}–${addMin(s.time, s.dur)}${pay ? `<br>${pay}` : ''}</p>
+    <div class="seg st" style="margin-bottom:14px">${Object.entries(STATUS).map(([k, [l]]) => `<button class="chip" data-s="st" data-v="${k}" aria-pressed="${s.status === k}">${l}</button>`).join('')}</div>
+    ${w ? `<button class="btn accent" data-s="open">${w.finishedAt ? 'Открыть тренировку' : 'Продолжить тренировку'}</button>${w.finishedAt ? '<button class="btn ghost" data-s="report">Отчёт клиенту</button>' : ''}`
+      : s.status === 'planned' ? '<button class="btn accent" data-s="start">Начать тренировку</button>' : ''}
+    <button class="btn ghost" data-s="client">Карточка клиента</button>
+    <details class="more"><summary>Перенести</summary><div class="grid2" style="margin-top:10px"><div class="field"><label for="mdt">Дата</label><input id="mdt" type="date" value="${s.date}"></div>
+      <div class="field"><label for="mtm">Время</label><input id="mtm" type="time" value="${s.time}" step="300"></div></div><button class="btn ghost" data-s="move">Перенести</button></details>
+    <details class="more"><summary>Удалить</summary><div style="margin-top:10px"><button class="btn ghost danger" data-s="del">Удалить эту запись</button>
+      ${s.seriesId ? '<button class="btn ghost danger" data-s="delnext">Удалить эту и все следующие в серии</button>' : ''}</div></details>`);
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return; const a = b.dataset.s;
+    if (a === 'st') { setStatus(s, b.dataset.v); save(); render(); openSession(id); toast(STATUS[s.status][0]); }
+    else if (a === 'start' || a === 'open') { closeSheet(); startSession(s.id); }
+    else if (a === 'report') openReport(w.id);
+    else if (a === 'client') { closeSheet(); VIEW = []; go({ t: 'client', id: s.clientId }); }
+    else if (a === 'move') { const nd = sh.querySelector('#mdt').value, nt = sh.querySelector('#mtm').value; if (!nd || !nt) return;
+      s.date = nd; s.time = nt; touch(s); save(); SD = nd; closeSheet(); render(); toast('Перенесено'); }
+    else if (a === 'del' || a === 'delnext') { const n = a === 'del' ? 1 : S.sessions.filter(x => x.seriesId === s.seriesId && x.date >= s.date && x.status === 'planned').length;
+      if (!confirm(a === 'del' ? 'Удалить запись?' : `Удалить ${n} ${plural(n, 'запись', 'записи', 'записей')}? Проведённые останутся.`)) return;
+      S.sessions = S.sessions.filter(x => a === 'del' ? x.id !== s.id : !(x.seriesId === s.seriesId && x.date >= s.date && (x.status === 'planned' || x.id === s.id)));
+      save(); closeSheet(); render(); toast('Удалено'); } };
+}
+/* ---------- клиенты ---------- */
+const GOALS = ['Похудение', 'Набор массы', 'Сила', 'Здоровье и ОФП', 'Реабилитация', 'Подготовка к старту'];
+function clientCard(c){
+  const nx = nextSession(c.id), bal = balance(c.id), pl = passLine(c.id);
+  const p = activePass(c.id), low = p && p.total - passUsed(p) <= 2;
+  return `<button class="ccard" data-act="openclient" data-id="${c.id}"><span class="ava">${esc(initials(c.name))}</span><span class="cinfo"><b>${esc(c.name)}</b>
+    <small>${nx ? `Следующая: ${sessLabel(nx)}` : 'Нет записей'}${c.goal ? `, ${esc(c.goal.toLowerCase())}` : ''}</small>
+    <span class="tags">${bal < 0 ? `<i class="tag bad">Долг ${money(-bal)}</i>` : ''}${pl ? `<i class="tag${low ? ' warn' : ''}">Абонемент: ${pl}</i>` : ''}${c.limits ? '<i class="tag warn">Ограничения</i>' : ''}</span></span></button>`;
+}
+function clientListHtml(){
+  const q = CQ.trim().toLowerCase(), list = S.clients.filter(c => !!c.archived === CARCH && (!q || c.name.toLowerCase().includes(q) || (c.phone || '').includes(q)))
+    .sort((a, b) => a.name.localeCompare(b.name, 'ru'));
+  return list.map(clientCard).join('') || `<p class="empty">${q ? 'Никого не нашлось' : CARCH ? 'Архив пуст' : 'Клиентов пока нет'}</p>`;
+}
+function viewClients(){
+  return `<input id="cq" placeholder="Поиск по имени или телефону" value="${esc(CQ)}" autocomplete="off" style="margin-bottom:10px">
+    <div class="seg" style="margin-bottom:12px"><button class="chip" data-act="carch" data-v="0" aria-pressed="${!CARCH}">Активные</button><button class="chip" data-act="carch" data-v="1" aria-pressed="${CARCH}">Архив</button></div>
+    <div id="clist">${clientListHtml()}</div><button class="btn accent" data-act="newclient" style="margin-top:8px">+ Клиент</button>`;
+}
+function openClientEditor(c, onSaved, onBack){
+  const d = c ? { ...c } : { name: '', phone: '', sex: '', age: '', height: '', weight: '', goal: '', limits: '', notes: '', price: '' };
+  const has = c && (S.sessions.some(s => s.clientId === c.id) || S.workouts.some(w => w.clientId === c.id) || S.payments.some(p => p.clientId === c.id));
+  const sh = sheet(`<h2>${c ? 'Клиент' : 'Новый клиент'}</h2>
+    <div class="field"><label for="cn">Имя</label><input id="cn" value="${esc(d.name)}" placeholder="Имя и фамилия"></div>
+    <div class="field"><label for="cph">Телефон</label><input id="cph" type="tel" value="${esc(d.phone)}" placeholder="+7…"></div>
+    <div class="field"><label>Пол</label><div class="seg"><button class="chip" data-s="sex" data-v="m" aria-pressed="${d.sex === 'm'}">Мужской</button><button class="chip" data-s="sex" data-v="f" aria-pressed="${d.sex === 'f'}">Женский</button></div></div>
+    <div class="grid3b"><div class="field"><label for="cage">Возраст</label><input id="cage" inputmode="numeric" value="${esc(d.age)}"></div>
+      <div class="field"><label for="ch">Рост, см</label><input id="ch" inputmode="numeric" value="${esc(d.height)}"></div>
+      <div class="field"><label for="cw">Вес, кг</label><input id="cw" inputmode="decimal" value="${esc(String(d.weight || '').replace('.', ','))}"></div></div>
+    <div class="field"><label>Цель</label><div class="actions" style="margin-top:0">${GOALS.map(g => `<button class="chip" data-s="goal" data-v="${g}" aria-pressed="${d.goal === g}">${g}</button>`).join('')}</div></div>
+    <div class="field"><label for="clim">Ограничения и травмы</label><textarea id="clim" rows="2" placeholder="Например, грыжа L5, не делать осевую нагрузку">${esc(d.limits)}</textarea></div>
+    <div class="field"><label for="cnot">Заметки</label><textarea id="cnot" rows="2" placeholder="Предпочтения, режим, всё что важно помнить">${esc(d.notes)}</textarea></div>
+    <div class="field"><label for="cpr">Цена разового занятия, ${esc(S.settings.cur)}</label><input id="cpr" inputmode="numeric" value="${esc(d.price)}" placeholder="${S.settings.price ? 'по умолчанию ' + esc(S.settings.price) : 'задай в «Ещё»'}"></div>
+    <button class="btn accent" data-s="save">${c ? 'Сохранить' : 'Добавить клиента'}</button>${onBack ? '<button class="btn ghost" data-s="back">Назад</button>' : ''}
+    ${c ? `<button class="btn ghost" data-s="arch">${c.archived ? 'Вернуть из архива' : 'В архив'}</button>${has ? '' : '<button class="btn ghost danger" data-s="del">Удалить клиента</button>'}` : ''}`);
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'sex' || s === 'goal') { d[s] = d[s] === b.dataset.v ? '' : b.dataset.v; sh.querySelectorAll(`[data-s=${s}]`).forEach(x => x.setAttribute('aria-pressed', x.dataset.v === d[s])); }
+    else if (s === 'back') onBack();
+    else if (s === 'save') { const v = id => sh.querySelector(id).value.trim(), name = v('#cn'); if (!name) { toast('Напиши имя'); sh.querySelector('#cn').focus(); return; }
+      const f = { name, phone: v('#cph'), sex: d.sex, age: v('#cage'), height: v('#ch'), weight: v('#cw').replace(',', '.'), goal: d.goal, limits: v('#clim'), notes: v('#cnot'), price: v('#cpr') };
+      let id; if (c) { Object.assign(c, f); touch(c); id = c.id; } else { id = uid(); S.clients.push(touch({ id, created: today(), program: { days: [] }, ...f })); }
+      save(); toast(c ? 'Сохранено' : 'Клиент добавлен'); if (onSaved) onSaved(id); else { closeSheet(); render(); } }
+    else if (s === 'arch') { c.archived = !c.archived; touch(c); save(); closeSheet(); render(); toast(c.archived ? 'Клиент в архиве' : 'Клиент снова активен'); }
+    else if (s === 'del') { if (!confirm(`Удалить ${c.name}?`)) return; S.clients = S.clients.filter(x => x !== c); S.passes = S.passes.filter(p => p.clientId !== c.id); save(); closeSheet(); VIEW = []; render(); } };
+}
+function viewClient(id){
+  const c = clientById(id); if (!c) return '<p class="empty">Клиент не найден</p>';
+  const bal = balance(id), nx = nextSession(id), lw = S.workouts.find(w => w.clientId === id && isLive(w));
+  const facts = [c.age ? `${c.age} ${plural(+c.age, 'год', 'года', 'лет')}` : '', c.height ? `${c.height} см` : '', c.weight ? `${fmtW(num(c.weight))} кг` : '', c.goal].filter(Boolean);
+  let h = `<div class="board chead"><div class="crow"><span class="ava big">${esc(initials(c.name))}</span><div><b class="cname">${esc(c.name)}</b>
+      <span class="small">${facts.map(esc).join(', ') || 'Данные не заполнены'}</span>${c.phone ? `<a class="small" href="tel:${esc(c.phone.replace(/[^\d+]/g, ''))}">${esc(c.phone)}</a>` : ''}</div></div>
+    ${c.limits ? `<div class="alert">⚠ ${esc(c.limits)}</div>` : ''}${c.notes ? `<p class="small" style="margin-top:8px">${esc(c.notes)}</p>` : ''}
+    <div class="stats"><div class="stat"><b>${nx ? `${shortDay(nx.date)} ${nx.time}` : '—'}</b><span>следующая</span></div>
+      <div class="stat"><b>${(() => { const p = activePass(id); return p ? `${p.total - passUsed(p)}/${p.total}` : '—'; })()}</b><span>абонемент</span></div>
+      <div class="stat"><b class="${bal < 0 ? 'bad' : ''}">${bal < 0 ? money(-bal) : bal > 0 ? '+' + money(bal) : '0'}</b><span>${bal < 0 ? 'долг' : bal > 0 ? 'аванс' : 'баланс'}</span></div></div>
+    <div class="actions"><button class="chip" data-act="addsessfor" data-id="${id}">Записать</button><button class="chip go" data-act="startclient" data-id="${id}">${lw ? 'Открыть тренировку' : 'Начать тренировку'}</button><button class="chip" data-act="editclient" data-id="${id}">Изменить</button></div></div>
+  <div class="seg tabs">${[['program', 'Программа'], ['history', 'История'], ['money', 'Оплаты'], ['progress', 'Прогресс']].map(([k, l]) => `<button class="chip" data-act="ctab" data-v="${k}" aria-pressed="${CTAB === k}">${l}</button>`).join('')}</div>`;
+  if (CTAB === 'program') { const pr = c.program || (c.program = { days: [] });
+    h += `<div class="card"><h2>${pr.name ? esc(pr.name) : 'Программа'}</h2>${daysHtml(pr, 'client')}
+      <button class="btn ghost" data-act="addday" data-ctx="client">+ День</button><button class="btn ghost" data-act="fromlib">Взять из библиотеки</button>${pr.days.length ? '<button class="btn ghost" data-act="tolib">Сохранить в библиотеку</button>' : ''}</div>`; }
+  else if (CTAB === 'history') { const t = today(), up = clientSessions(id).filter(s => s.status === 'planned' && s.date >= t).sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time)).slice(0, 5);
+    const ws = clientWorkouts(id);
+    h += `<div class="card"><h2>Ближайшие записи</h2>${up.map(s => `<button class="row" data-act="sess" data-id="${s.id}"><span class="nm">${fmtDay(s.date)}, ${s.time}</span><span class="meta">${s.dur} мин</span></button>`).join('') || '<p class="small">Записей нет</p>'}</div>
+      <div class="card"><h2>Тренировки<span class="meta">${ws.length}</span></h2>${ws.map(w => { const m = w.finishedAt ? Math.max(1, Math.round((w.finishedAt - w.startedAt) / 60000)) : 0;
+        return `<button class="row" data-act="openwk" data-id="${w.id}"><span class="nm">${fmtDay(w.date)}<small>${esc(w.dayName)}${isLive(w) ? ', идёт сейчас' : ''}</small></span><span class="meta">${w.sets.length} ${plural(w.sets.length, 'подход', 'подхода', 'подходов')}${m ? `, ${m} мин` : ''}</span></button>`; }).join('') || '<p class="small">Тренировок пока не было</p>'}</div>`; }
+  else if (CTAB === 'money') { const ps = passesOf(id).slice().reverse(), lg = ledger(id).slice(0, 30);
+    h += `<div class="card"><h2>Абонементы</h2>${ps.map(p => { const u = passUsed(p), exp = p.expires && p.expires < today();
+        return `<div class="pass${u >= p.total || exp ? ' closed' : ''}"><div class="pass-top"><b>${p.total} ${plural(p.total, 'занятие', 'занятия', 'занятий')}, ${money(p.price)}</b><button class="iconbtn sm" data-act="delpass" data-id="${p.id}" aria-label="Удалить абонемент">×</button></div>
+          <div class="bar"><i style="width:${Math.min(100, u / p.total * 100)}%"></i></div><span class="small">Проведено ${u} из ${p.total}, куплен ${shortDay(p.date)}${p.expires ? `, ${exp ? 'истёк' : 'действует до'} ${shortDay(p.expires)}` : ''}</span></div>`; }).join('') || `<p class="small">Абонементов нет. Занятия считаются разовыми по ${money(sessPrice(c))}.</p>`}
+      <button class="btn ghost" data-act="sellpass" data-id="${id}">Продать абонемент</button><button class="btn accent" data-act="pay" data-id="${id}">Принять оплату</button></div>
+      <div class="card"><h2>История<span class="meta">${bal < 0 ? `долг ${money(-bal)}` : bal > 0 ? `аванс ${money(bal)}` : 'всё оплачено'}</span></h2>${lg.map(r => `<${r.pay ? `button class="row" data-act="delpay" data-id="${r.pay.id}"` : 'div class="row"'}><span class="nm">${esc(r.txt)}<small>${shortDay(r.date)}</small></span><span class="meta ${r.amt > 0 ? 'plus' : ''}">${r.amt > 0 ? '+' : '−'}${money(Math.abs(r.amt))}</span></${r.pay ? 'button' : 'div'}>`).join('') || '<p class="small">Пока пусто</p>'}</div>`; }
+  else { const cnt = {}; for (const w of S.workouts) if (w.clientId === id) for (const x of new Set(w.sets.map(s => s.exId))) cnt[x] = (cnt[x] || 0) + 1;
+    const ids = Object.keys(cnt).filter(exById).sort((a, b) => cnt[b] - cnt[a]); if (!PEX || !ids.includes(PEX)) PEX = ids[0] || null;
+    h += `<div class="card"><h2>Прогресс по упражнениям</h2>${PEX ? `<select id="pex">${ids.map(x => `<option value="${x}"${x === PEX ? ' selected' : ''}>${esc(exById(x).name)}</option>`).join('')}</select><canvas id="cEx"></canvas><div class="legend" id="cExLeg"></div>`
+      : '<p class="small">После пары тренировок здесь появятся графики.</p>'}</div>`; }
+  return h;
+}
+function drawClientProgress(){
+  const v = VIEW.at(-1); if (!PEX || !v) return;
+  const ws = S.workouts.filter(w => w.clientId === v.id && w.sets.some(s => s.exId === PEX)).sort((a, b) => a.date.localeCompare(b.date));
+  const per = ws.map(w => w.sets.filter(s => s.exId === PEX)), bw = per.every(ss => ss.every(s => s.w === 0));
+  const series = bw ? [{ data: per.map(ss => Math.max(...ss.map(s => s.r))), color: cssv('--red') }]
+    : [{ data: per.map(ss => Math.max(...ss.map(s => s.w))), color: cssv('--muted'), width: 1.5 }, { data: per.map(ss => r1(Math.max(...ss.map(s => e1rm(s.w, s.r))))), color: cssv('--red') }];
+  drawChart($('#cEx'), ws.map(w => shortDay(w.date)), series);
+  const lg = $('#cExLeg'); if (lg) lg.innerHTML = bw ? `<span><i style="background:var(--red)"></i>${isTimed(exById(PEX)) ? 'Лучший подход, секунды' : 'Лучший подход, повторы'}</span>`
+    : '<span><i style="background:var(--red)"></i>Расчётный максимум на 1 раз</span><span><i style="background:var(--muted)"></i>Максимальный рабочий вес</span>';
+}
+function openSellPass(cid){
+  const c = clientById(cid), d = { total: 8, exp: '30', paid: true };
+  const sh = sheet(`<h2>Абонемент</h2><p class="prev">${esc(c.name)}</p>
+    <div class="field"><label>Количество занятий</label><div class="seg">${[4, 8, 12, 16].map(n => `<button class="chip" data-s="n" data-v="${n}" aria-pressed="${n === d.total}">${n}</button>`).join('')}</div>
+      <input id="pn" inputmode="numeric" placeholder="Или своё число" style="margin-top:8px"></div>
+    <div class="grid2"><div class="field"><label for="pp">Цена, ${esc(S.settings.cur)}</label><input id="pp" inputmode="numeric" value="${sessPrice(c) ? sessPrice(c) * d.total : ''}"></div>
+      <div class="field"><label for="pd">Дата покупки</label><input id="pd" type="date" value="${today()}"></div></div>
+    <div class="field"><label>Срок действия</label><div class="seg">${[['', 'Без срока'], ['30', '1 мес'], ['60', '2 мес'], ['90', '3 мес']].map(([v, l]) => `<button class="chip" data-s="exp" data-v="${v}" aria-pressed="${v === d.exp}">${l}</button>`).join('')}</div></div>
+    <div class="field"><label>Оплата</label><div class="seg"><button class="chip" data-s="paid" data-v="1" aria-pressed="true">Оплачен сейчас</button><button class="chip" data-s="paid" data-v="0" aria-pressed="false">Оплатит позже</button></div></div>
+    <button class="btn accent" data-s="save">Оформить</button>`);
+  const pp = sh.querySelector('#pp'); let priceTouched = false; pp.oninput = () => { priceTouched = true; };
+  sh.querySelector('#pn').oninput = e => { const n = Math.round(num(e.target.value)); if (n > 0) { d.total = n; sh.querySelectorAll('[data-s=n]').forEach(x => x.setAttribute('aria-pressed', +x.dataset.v === n)); if (!priceTouched && sessPrice(c)) pp.value = sessPrice(c) * n; } };
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return; const s = b.dataset.s;
+    if (s === 'n') { d.total = +b.dataset.v; sh.querySelector('#pn').value = ''; if (!priceTouched && sessPrice(c)) pp.value = sessPrice(c) * d.total; }
+    if (s === 'exp') d.exp = b.dataset.v; if (s === 'paid') d.paid = b.dataset.v === '1';
+    if (s === 'n' || s === 'exp' || s === 'paid') { sh.querySelectorAll(`[data-s=${s}]`).forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
+    if (s === 'save') { const price = num(pp.value), date = sh.querySelector('#pd').value || today(); if (!(price >= 0)) { toast('Укажи цену'); return; }
+      const p = touch({ id: uid(), clientId: cid, total: d.total, price, date, expires: d.exp ? addDays(date, Number(d.exp)) : '' }); S.passes.push(p);
+      if (d.paid && price > 0) S.payments.push(touch({ id: uid(), clientId: cid, amount: price, date, method: '', note: `абонемент на ${d.total}` }));
+      // уже проведённые разовые без оплаты не трогаем; будущие занятия пойдут по абонементу
+      save(); closeSheet(); render(); toast('Абонемент оформлен'); } };
+}
+function openPay(cid){
+  const c = clientById(cid), bal = balance(cid); let method = 'Перевод';
+  const sh = sheet(`<h2>Оплата</h2><p class="prev">${esc(c.name)}${bal < 0 ? `, долг ${money(-bal)}` : ''}</p>
+    <div class="grid2"><div class="field"><label for="pa">Сумма, ${esc(S.settings.cur)}</label><input id="pa" inputmode="numeric" value="${bal < 0 ? -bal : sessPrice(c) || ''}"></div>
+      <div class="field"><label for="pdt">Дата</label><input id="pdt" type="date" value="${today()}"></div></div>
+    <div class="field"><label>Способ</label><div class="seg">${['Наличные', 'Карта', 'Перевод'].map(m => `<button class="chip" data-s="m" data-v="${m}" aria-pressed="${m === method}">${m}</button>`).join('')}</div></div>
+    <div class="field"><label for="pnote">Комментарий</label><input id="pnote" placeholder="Необязательно"></div>
+    <button class="btn accent" data-s="save">Записать оплату</button>`);
+  sh.onclick = e => { const b = e.target.closest('button[data-s]'); if (!b) return;
+    if (b.dataset.s === 'm') { method = b.dataset.v; sh.querySelectorAll('[data-s=m]').forEach(x => x.setAttribute('aria-pressed', x === b)); return; }
+    const a = num(sh.querySelector('#pa').value); if (!(a > 0)) { toast('Укажи сумму'); return; }
+    S.payments.push(touch({ id: uid(), clientId: cid, amount: a, date: sh.querySelector('#pdt').value || today(), method, note: sh.querySelector('#pnote').value.trim() }));
+    save(); closeSheet(); render(); toast('Оплата записана'); };
+}
+const cssv = n => getComputedStyle(document.body).getPropertyValue(n).trim();
+function drawChart(cv, labels, series, opt = {}){
+  if (!cv) return; const bars = !!opt.bars, dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr; const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+  const muted = cssv('--muted'), line = cssv('--line'); g.font = '11px -apple-system,system-ui,sans-serif';
+  const vals = series.flatMap(s => s.data).filter(v => v != null && isFinite(v));
+  if (!vals.length) { g.fillStyle = muted; g.textAlign = 'center'; g.fillText('Пока нет данных', W / 2, H / 2); return; }
+  if (opt.limit != null) vals.push(opt.limit);
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  if (bars) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  if (lo === hi) { lo -= 1; hi += 1; }
+  const sp = hi - lo; if (bars) { if (lo < 0) lo -= sp * .06; if (hi > 0) hi += sp * .06; } else { lo -= sp * .12; hi += sp * .12; }
+  const dec = (hi - lo) < 6 ? 1 : 0;
+  const fmtA = v => Math.abs(v) >= 10000 ? fmtW(v / 1000) + 'k' : v.toFixed(dec).replace('.', ',');
+  const L = 42, R = 8, T = 8, B = 20, pw = W - L - R, ph = H - T - B, y = v => T + ph * (1 - (v - lo) / (hi - lo));
+  g.strokeStyle = line; g.fillStyle = muted; g.lineWidth = 1; g.textAlign = 'right'; g.textBaseline = 'middle';
+  for (let i = 0; i <= 3; i++) { const v = lo + (hi - lo) * i / 3, yy = Math.round(y(v)) + .5; g.beginPath(); g.moveTo(L, yy); g.lineTo(W - R, yy); g.stroke(); g.fillText(fmtA(v), L - 6, yy); }
+  const n = labels.length, step = pw / Math.max(n, 1);
+  const x = bars ? (i => L + step * (i + .5)) : (i => n === 1 ? L + pw / 2 : L + pw * i / (n - 1));
+  g.textAlign = 'center'; g.textBaseline = 'top'; const every = Math.ceil(n / 6);
+  for (let i = 0; i < n; i += every) { const tw = g.measureText(labels[i]).width / 2; g.fillText(labels[i], Math.min(Math.max(x(i), L + tw), W - tw), H - B + 5); }
+  if (bars) { const s = series[0], bw = Math.max(2, step * .64), y0 = y(0);
+    s.data.forEach((v, i) => { if (v == null) return; g.fillStyle = s.colorFor ? s.colorFor(v) : v <= 0 ? s.neg : s.pos; const yy = y(v);
+      g.fillRect(x(i) - bw / 2, Math.min(y0, yy), bw, Math.max(1, Math.abs(yy - y0))); });
+    g.strokeStyle = muted; g.beginPath(); g.moveTo(L, Math.round(y0) + .5); g.lineTo(W - R, Math.round(y0) + .5); g.stroke();
+    if (opt.limit != null) { const yl = Math.round(y(opt.limit)) + .5; g.setLineDash([4, 4]); g.beginPath(); g.moveTo(L, yl); g.lineTo(W - R, yl); g.stroke(); g.setLineDash([]); }
+    return; }
+  for (const s of series) { g.strokeStyle = s.color; g.fillStyle = s.color; g.lineWidth = s.width || 2.5; g.lineJoin = 'round'; g.lineCap = 'round';
+    g.beginPath(); let started = false;
+    s.data.forEach((v, i) => { if (v == null) return; if (started) g.lineTo(x(i), y(v)); else g.moveTo(x(i), y(v)); started = true; }); g.stroke();
+    s.data.forEach((v, i) => { if (v == null) return; g.beginPath(); g.arc(x(i), y(v), s.width ? 2.5 : 3.5, 0, Math.PI * 2); g.fill(); }); }
+}
+/* ---------- ещё: финансы, настройки, данные ---------- */
+const MONTHS_FULL = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+function viewMore(){
+  const n = new Date(); n.setDate(1); n.setMonth(n.getMonth() + FM); const ym = `${n.getFullYear()}-${pad(n.getMonth() + 1)}`, inM = d => d && d.startsWith(ym);
+  const pays = S.payments.filter(p => inM(p.date)), got = pays.reduce((a, p) => a + p.amount, 0);
+  const ss = S.sessions.filter(s => inM(s.date)), done = ss.filter(s => s.status === 'done').length, nos = ss.filter(s => s.status === 'noshow').length, canc = ss.filter(s => s.status === 'cancel').length;
+  const sold = S.passes.filter(p => inM(p.date));
+  const debt = S.clients.map(c => ({ c, b: balance(c.id) })).filter(x => x.b < 0).sort((a, b) => a.b - b.b);
+  const ending = S.clients.filter(c => !c.archived).map(c => ({ c, p: activePass(c.id) })).filter(x => x.p && (x.p.total - passUsed(x.p) <= 2 || (x.p.expires && x.p.expires <= addDays(today(), 7))));
+  const st = S.settings, standalone = navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  const kv = (k, v) => `<div class="kv"><span>${k}</span><b>${v}</b></div>`;
+  return `${standalone ? '' : `<div class="card"><h2>Установка на телефон</h2><p class="small">Открой страницу в Safari, нажми «Поделиться», затем «На экран „Домой“». После первого запуска приложение работает без интернета.</p></div>`}
+  <div class="card"><div class="weeknav"><button class="iconbtn" data-act="fm" data-d="-1" aria-label="Предыдущий месяц">‹</button><h2>${MONTHS_FULL[n.getMonth()]}<span class="meta">${n.getFullYear()}</span></h2><button class="iconbtn" data-act="fm" data-d="1" aria-label="Следующий месяц"${FM >= 0 ? ' disabled' : ''}>›</button></div>
+    ${kv('Получено', money(got))}${kv('Проведено тренировок', done)}${nos ? kv('Неявки', nos) : ''}${canc ? kv('Отмены', canc) : ''}${sold.length ? kv('Продано абонементов', `${sold.length} на ${money(sold.reduce((a, p) => a + p.price, 0))}`) : ''}</div>
+  ${debt.length ? `<div class="card"><h2>Должники<span class="meta">${money(-debt.reduce((a, x) => a + x.b, 0))}</span></h2>${debt.map(x => `<button class="row" data-act="openclient" data-id="${x.c.id}" data-tabto="money"><span class="nm">${esc(x.c.name)}</span><span class="meta bad">${money(-x.b)}</span></button>`).join('')}</div>` : ''}
+  ${ending.length ? `<div class="card"><h2>Абонементы заканчиваются</h2>${ending.map(x => `<button class="row" data-act="openclient" data-id="${x.c.id}" data-tabto="money"><span class="nm">${esc(x.c.name)}</span><span class="meta">${passLine(x.c.id)}</span></button>`).join('')}</div>` : ''}
+  <div class="card"><h2>Настройки</h2>
+    <div class="field"><label for="st-tr">Твоё имя (подпись в отчётах)</label><input id="st-tr" data-st="trainer" value="${esc(st.trainer)}"></div>
+    <div class="grid2"><div class="field"><label for="st-pr">Цена разового</label><input id="st-pr" data-st="price" inputmode="numeric" value="${esc(st.price)}"></div>
+      <div class="field"><label for="st-cur">Валюта</label><input id="st-cur" data-st="cur" value="${esc(st.cur)}"></div></div>
+    <div class="grid2"><div class="field"><label for="st-dur">Длительность занятия</label><select id="st-dur" data-st="dur">${[30, 45, 60, 75, 90, 120].map(m => `<option value="${m}"${String(m) === String(st.dur) ? ' selected' : ''}>${m} мин</option>`).join('')}</select></div>
+      <div class="field"><label for="st-rest">Отдых по умолчанию</label><select id="st-rest" data-st="rest">${REST_OPTS.slice(1).map(([v, l]) => `<option value="${v}"${String(st.rest) === v ? ' selected' : ''}>${l}</option>`).join('')}</select></div></div>
+    <div class="field"><label for="st-ns">Неявка без предупреждения</label><select id="st-ns" data-st="noshow"><option value="1"${st.noshow !== '0' ? ' selected' : ''}>Списывается как занятие</option><option value="0"${st.noshow === '0' ? ' selected' : ''}>Не списывается</option></select></div>
+    <button class="btn ghost" data-act="myex">Мои упражнения</button></div>
+  <div class="card"><h2>Данные</h2><p class="small" style="margin-bottom:12px">Вся база клиентов хранится только на этом телефоне: ${S.clients.length} ${plural(S.clients.length, 'клиент', 'клиента', 'клиентов')}, ${S.workouts.length} ${plural(S.workouts.length, 'тренировка', 'тренировки', 'тренировок')}. Регулярно сохраняй копию в «Файлы» или iCloud. Последняя копия: ${S.lastExport ? fmtDay(S.lastExport).toLowerCase() : 'ещё не сохранялась'}.</p>
+    <button class="btn" data-act="export">Сохранить копию данных</button><button class="btn ghost" data-act="import">Восстановить из копии</button><input type="file" id="importFile" accept="application/json,.json" hidden>
+    ${S.clients.some(c => c.demo) ? '<button class="btn ghost danger" data-act="cleardemo">Убрать пример данных</button>' : ''}</div>
+  <p class="small" style="text-align:center;margin:16px 0 6px">Подход Тренер, демо-версия ${APP_VERSION}</p>`;
+}
+async function exportData(){
+  const name = `trener-${today()}.json`; S.lastExport = today();
+  const blob = new Blob([JSON.stringify(S)], { type: 'application/json' }), file = new File([blob], name, { type: 'application/json' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) await navigator.share({ files: [file], title: name });
+    else { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500); }
+    save(); render(); } catch (e) { if (e.name !== 'AbortError') toast('Не получилось сохранить файл'); }
+}
+async function importData(file){
+  if (!file) return;
+  try { const d = JSON.parse(await file.text()); if (!d || !Array.isArray(d.clients) || !Array.isArray(d.sessions)) throw new Error('bad');
+    if (!confirm('Заменить данные на телефоне данными из копии?')) return; S = d; migrate(S); await persist(); VIEW = []; render(); toast('Данные восстановлены'); }
+  catch (e) { toast('Это не файл копии «Подход Тренер»'); }
+}
+function seedDemo(){
+  const ex = n => (S.exercises.find(x => x.name === n) || {}).id, t = today(), mon = mondayOf(t);
+  const prog = touch({ id: uid(), demo: true, name: 'Фулбади для новичка', days: [
+    { id: uid(), name: 'День A', items: [{ exId: ex('Приседания со штангой'), sets: 3, target: '10–12', rest: '120' }, { exId: ex('Жим гантелей на наклонной'), sets: 3, target: '10–12', rest: '' }, { exId: ex('Тяга верхнего блока'), sets: 3, target: '12', rest: '' }, { exId: ex('Планка, сек'), sets: 3, target: '30', rest: '45' }] },
+    { id: uid(), name: 'День B', items: [{ exId: ex('Румынская тяга'), sets: 3, target: '10', rest: '120' }, { exId: ex('Жим стоя'), sets: 3, target: '8–10', rest: '' }, { exId: ex('Тяга гантели одной рукой'), sets: 3, target: '10', rest: '' }, { exId: ex('Скручивания'), sets: 3, target: '15', rest: '45' }] }] });
+  S.programs.push(prog);
+  const mk = (name, f) => { const c = touch({ id: uid(), demo: true, created: t, program: { name: prog.name, days: copyDays(prog.days) }, name, phone: '', sex: '', age: '', height: '', weight: '', goal: '', limits: '', notes: '', price: '', ...f }); S.clients.push(c); return c; };
+  const a = mk('Анна Смирнова', { sex: 'f', age: '29', height: '168', weight: '64', goal: 'Похудение', limits: 'Болит правое колено, без прыжков и глубоких выпадов', price: '1500' });
+  const o = mk('Олег Петров', { sex: 'm', age: '35', height: '182', weight: '91', goal: 'Сила', price: '1500' });
+  const m = mk('Мария Ковалёва', { sex: 'f', age: '42', height: '160', weight: '70', goal: 'Здоровье и ОФП', price: '1500', notes: 'Только утро, до 10:00' });
+  S.passes.push(touch({ id: uid(), clientId: a.id, total: 12, price: 15000, date: addDays(t, -20), expires: addDays(t, 40) }));
+  S.payments.push(touch({ id: uid(), clientId: a.id, amount: 15000, date: addDays(t, -20), method: 'Перевод', note: 'абонемент на 12' }));
+  S.passes.push(touch({ id: uid(), clientId: o.id, total: 8, price: 10400, date: addDays(t, -25), expires: addDays(t, 5) }));
+  S.payments.push(touch({ id: uid(), clientId: o.id, amount: 10400, date: addDays(t, -25), method: 'Карта', note: 'абонемент на 8' }));
+  const series = (c, wds, time) => { const sid = uid(); for (let w = -1; w < 4; w++) for (const wd of wds) S.sessions.push(touch({ id: uid(), clientId: c.id, date: addDays(mon, w * 7 + wd), time, dur: 60, status: 'planned', seriesId: sid })); };
+  series(a, [0, 2, 4], '18:00'); series(o, [1, 3], '19:30'); series(m, [0, 3], '08:30');
+  const sq = ex('Приседания со штангой'), pr = ex('Жим гантелей на наклонной');
+  for (const s of S.sessions.filter(s => s.date < t && s.status === 'planned')) {
+    if (s.clientId === m.id && s === S.sessions.find(x => x.clientId === m.id)) { setStatus(s, 'noshow'); continue; }
+    setStatus(s, 'done');
+    if (s.clientId === a.id) { const st = new Date(s.date + 'T18:00').getTime(); const day = (S.clients.find(c => c.id === a.id).program.days)[0];
+      const w = touch({ id: uid(), clientId: a.id, sessionId: s.id, date: s.date, dayId: day.id, dayName: day.name, plan: day.items.map(i => ({ ...i })), notes: {}, note: '',
+        sets: [{ id: uid(), exId: sq, w: 30, r: 12, t: st + 6e5 }, { id: uid(), exId: sq, w: 35, r: 10, t: st + 9e5 }, { id: uid(), exId: pr, w: 10, r: 12, t: st + 15e5 }], startedAt: st, finishedAt: st + 3300e3 });
+      S.workouts.push(w); s.workoutId = w.id; } }
+  save(); render(); toast('Пример загружен: 3 клиента, программа и расписание');
+}
+/* ---------- события ---------- */
+const curClient = () => { const v = VIEW.at(-1); return v && v.t === 'client' ? clientById(v.id) : null; };
+const curProg = () => { const v = VIEW.at(-1); return v && v.t === 'program' ? S.programs.find(p => p.id === v.id) : null; };
+const ACTIONS = {
+  back: () => back(),
+  week: t => { SD = addDays(SD, Number(t.dataset.d)); render(); },
+  today: () => { SD = today(); render(); },
+  sday: t => { SD = t.dataset.d; render(); },
+  sess: t => openSession(t.dataset.id),
+  startsess: t => startSession(t.dataset.id),
+  addsess: () => openSessionEditor({ date: SD }),
+  addsessfor: t => openSessionEditor({ clientId: t.dataset.id, date: today() }),
+  demo: () => seedDemo(),
+  cleardemo: () => { if (!confirm('Убрать клиентов, расписание и программу из примера? Твои данные останутся.')) return;
+    const ids = new Set(S.clients.filter(c => c.demo).map(c => c.id)), own = x => ids.has(x.clientId);
+    S.clients = S.clients.filter(c => !c.demo); S.sessions = S.sessions.filter(x => !own(x)); S.workouts = S.workouts.filter(x => !own(x));
+    S.passes = S.passes.filter(x => !own(x)); S.payments = S.payments.filter(x => !own(x)); S.programs = S.programs.filter(p => !p.demo); save(); VIEW = []; render(); },
+  openclient: t => { CTAB = t.dataset.tabto || 'program'; go({ t: 'client', id: t.dataset.id }); },
+  newclient: () => openClientEditor(null, id => { closeSheet(); CTAB = 'program'; go({ t: 'client', id }); }),
+  editclient: t => openClientEditor(clientById(t.dataset.id)),
+  carch: t => { CARCH = t.dataset.v === '1'; render(); },
+  ctab: t => { CTAB = t.dataset.v; render(); },
+  startclient: t => startClientWorkout(t.dataset.id),
+  addday: t => { if (t.dataset.ctx === 'client') { const c = curClient(); if (!c.program) c.program = { days: [] }; editDayIn(c.program, null, 'Новый день'); touch(c); } else editDayIn(curProg(), null, 'Новый день'); },
+  editday: t => { if (t.dataset.ctx === 'client') { const c = curClient(); editDayIn(c.program, t.dataset.day, c.name); touch(c); } else { const p = curProg(); editDayIn(p, t.dataset.day, p.name); } },
+  startday: t => { const c = curClient(), day = c.program.days.find(d => d.id === t.dataset.day), lw = S.workouts.find(w => w.clientId === c.id && isLive(w));
+    if (lw) { go({ t: 'workout', id: lw.id }); return; }
+    const td = today(), s = S.sessions.find(x => x.clientId === c.id && x.date === td && x.status === 'planned' && !x.workoutId);
+    if (s) { createWorkout(c.id, s, day); return; }
+    const now = new Date(), ns = touch({ id: uid(), clientId: c.id, date: td, time: `${pad(now.getHours())}:${pad(Math.floor(now.getMinutes() / 5) * 5)}`, dur: Number(S.settings.dur) || 60, status: 'planned', seriesId: null });
+    S.sessions.push(ns); createWorkout(c.id, ns, day); },
+  fromlib: () => { const c = curClient(); if (!S.programs.length) { toast('В библиотеке пока нет программ. Создай их во вкладке «Программы»'); return; }
+    const sh = sheet(`<h2>Из библиотеки</h2>${S.programs.map(p => `<button class="row" data-id="${p.id}"><span class="nm">${esc(p.name)}<small>${p.days.map(d => esc(d.name)).join(', ')}</small></span></button>`).join('')}`);
+    sh.onclick = e => { const b = e.target.closest('[data-id]'); if (b) assignProgram(b.dataset.id, c.id); }; },
+  tolib: () => { const c = curClient(), name = prompt('Название программы в библиотеке', c.program.name || `Программа ${c.name.split(' ')[0]}`); if (!name) return;
+    S.programs.push(touch({ id: uid(), name, days: copyDays(c.program.days) })); save(); toast('Сохранено в библиотеку'); },
+  openprog: t => go({ t: 'program', id: t.dataset.id }),
+  newprog: () => { const p = touch({ id: uid(), name: 'Новая программа', days: [] }); S.programs.push(p); save(); go({ t: 'program', id: p.id }); },
+  assignprog: t => pickClient('Кому назначить?', cid => assignProgram(t.dataset.id, cid)),
+  delprog: t => { if (!confirm('Удалить программу из библиотеки? У клиентов, которым она назначена, всё останется.')) return; S.programs = S.programs.filter(p => p.id !== t.dataset.id); save(); back(); },
+  sellpass: t => openSellPass(t.dataset.id),
+  pay: t => openPay(t.dataset.id),
+  delpass: t => { const p = S.passes.find(x => x.id === t.dataset.id); if (!p || !confirm('Удалить абонемент? Занятия по нему станут разовыми.')) return;
+    S.passes = S.passes.filter(x => x !== p); for (const s of S.sessions) if (s.passId === p.id) { const st = s.status; s.passId = null; s.single = false; s.status = 'planned'; setStatus(s, st); } save(); render(); },
+  delpay: t => { const p = S.payments.find(x => x.id === t.dataset.id); if (!p || !confirm(`Удалить оплату ${money(p.amount)} от ${shortDay(p.date)}?`)) return; S.payments = S.payments.filter(x => x !== p); save(); render(); },
+  openwk: t => go({ t: 'workout', id: t.dataset.id }),
+  delwk: t => { if (!confirm('Удалить эту тренировку со всеми подходами? Запись в расписании останется.')) return; const w = S.workouts.find(x => x.id === t.dataset.id);
+    S.workouts = S.workouts.filter(x => x !== w); for (const s of S.sessions) if (s.workoutId === w.id) s.workoutId = null; save(); back(); },
+  report: t => openReport(t.dataset.id),
+  logset: t => logSet(t.dataset.ex),
+  stopwatch: t => openStopwatch(t.dataset.ex),
+  exnote: t => openExNote(t.dataset.ex),
+  rmex: t => { const w = curWorkout(); if (!w) return; w.plan = wkPlan(w).filter(i => i.exId !== t.dataset.ex); touch(w); save(); render(); },
+  delset: t => { const w = curWorkout(); const s = w && w.sets.find(x => x.id === t.dataset.id); if (!s || !confirm(`Удалить подход ${setTxt(s)}?`)) return; w.sets = w.sets.filter(x => x !== s); touch(w); save(); render(); },
+  finish: () => finishWorkout(),
+  pickex: () => openExPicker(),
+  rest: t => adjustRest(Number(t.dataset.d)),
+  fm: t => { FM = Math.min(0, FM + Number(t.dataset.d)); render(); },
+  myex: () => openMyExercises(),
+  export: () => exportData(),
+  import: () => $('#importFile').click(),
+};
+document.addEventListener('click', e => {
+  if (e.target.closest('.sheet')) return;
+  const t = e.target.closest('button[data-act],button[data-tab]'); if (!t) return;
+  if (t.dataset.tab) { TAB = t.dataset.tab; VIEW = []; render(); scrollTo(0, 0); return; }
+  const fn = ACTIONS[t.dataset.act]; if (fn) fn(t, e);
+});
+document.addEventListener('keydown', e => { const t = e.target; if (e.key === 'Enter' && t.dataset && t.dataset.log) { e.preventDefault(); logSet(t.dataset.log); } });
+document.addEventListener('input', e => { if (e.target.id === 'cq') { CQ = e.target.value; const l = $('#clist'); if (l) l.innerHTML = clientListHtml(); } });
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.id === 'pex') { PEX = t.value; requestAnimationFrame(drawClientProgress); }
+  else if (t.id === 'wnote') { const w = curWorkout(); if (w) { w.note = t.value.trim(); touch(w); save(); } }
+  else if (t.id === 'pname') { const p = curProg(); if (p && t.value.trim()) { p.name = t.value.trim(); touch(p); save(); $('.vtitle').textContent = p.name; } }
+  else if (t.id === 'importFile') { importData(t.files[0]); t.value = ''; }
+  else if (t.dataset.st) { S.settings[t.dataset.st] = t.value.trim(); save(); }
+});
+let rsT; window.addEventListener('resize', () => { clearTimeout(rsT); rsT = setTimeout(() => { const v = VIEW.at(-1); if (v && v.t === 'client' && CTAB === 'progress') drawClientProgress(); }, 150); });
+
+/* ---------- запуск ---------- */
+(async () => {
+  try { await store.open(); S = await store.get('state'); }
+  catch (e) { store.db = null; try { S = JSON.parse(localStorage.getItem('trener') || 'null'); } catch (e2) { S = null; } }
+  if (!S) S = freshState();
+  migrate(S); render();
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  if ('serviceWorker' in navigator) {
+    const hadCtl = !!navigator.serviceWorker.controller; let reloaded = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadCtl || reloaded) return; reloaded = true; persist().then(() => location.reload()); });
+    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {}); }
+})();
+
+</script>
+</body>
+</html>
